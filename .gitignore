@@ -1,3 +1,6 @@
-# Игнорируемы файлы для IntelliJ IDEA
+# Игнорируемые файлы для IntelliJ IDEA
 *.idea/
 *target/
+
+# Игнорируемые .xml файлы (в будущем будут удалены)
+UpperLevelScheme.xml
