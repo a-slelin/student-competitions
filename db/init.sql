@@ -9,7 +9,7 @@ CREATE TABLE student (
     faculty VARCHAR(50) NOT NULL,
     university VARCHAR(100) NOT NULL,
     department VARCHAR(100),
-    group VARCHAR(50),
+    study_group VARCHAR(50),
     created_at TIMESTAMP,
     updated_at TIMESTAMP,
     description VARCHAR(256)
@@ -62,7 +62,7 @@ CREATE TABLE participation (
     is_blocked BOOLEAN NOT NULL,
     created_at TIMESTAMP,
     updated_at TIMESTAMP,
-    description VARCHAR(256)
+    description VARCHAR(256),
 
     -- Уникальное ограничение для предотвращения дубликатов
     UNIQUE(student_id, competition_id, year)
