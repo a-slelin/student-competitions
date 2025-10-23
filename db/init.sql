@@ -11,7 +11,7 @@ CREATE TABLE student (
     department VARCHAR(100), -- Кафедра студента
     study_group VARCHAR(50), -- Учебная группа студента
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Дата и время создания записи
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Дата и время последнего обновления записи
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP -- Дата и время последнего обновления записи
 );
 
 -- Создание таблицы для конкурсов
@@ -22,8 +22,7 @@ CREATE TABLE competition (
     organizer VARCHAR(256), -- Организатор конкурса
     type VARCHAR(50) NOT NULL CHECK (type IN ('OLYMPIAD', 'CONTEST', 'CHAMPIONSHIP', 'COMPETITION')), -- Тип мероприятия 
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Дата и время создания записи
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Дата и время последнего обновления записи
-    
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP -- Дата и время последнего обновления записи   
 );
 
 -- Создание таблицы для участия
@@ -43,14 +42,14 @@ CREATE TABLE participation (
     description TEXT, -- Комментарий к участию
 
     -- Уникальное ограничение для предотвращения дубликатов
-    UNIQUE(student_id, competition_id, year)
+    UNIQUE(student_id, competition_id, year, level)
 );
 
 -- Создание таблицы для пользователей
 
 CREATE TABLE users (
 	login VARCHAR(20) PRIMARY KEY, -- Логин
-	password VARCHAR(20), -- Пароль
+	password VARCHAR(20) NOT NULL, -- Пароль
 	name VARCHAR(20) NOT NULL, -- Имя
 	surname VARCHAR(30) NOT NULL, -- Фамилия
 	middle_name VARCHAR(20), -- Отчетво
