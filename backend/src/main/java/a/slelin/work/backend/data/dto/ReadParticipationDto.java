@@ -7,7 +7,8 @@ import lombok.Builder;
 import java.net.URI;
 
 @Builder
-public record ReadParticipationDto(@NotNull URI student,
+public record ReadParticipationDto(@NotNull String id,
+                                   @NotNull URI student,
                                    @NotNull URI competition,
                                    @NotNull URI level,
                                    @NotNull URI result,

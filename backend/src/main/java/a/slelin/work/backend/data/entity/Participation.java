@@ -13,6 +13,7 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
+@Builder
 @Entity(name = Participation.ENTITY_NAME)
 @Table(
         name = Participation.TABLE_NAME,
