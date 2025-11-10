@@ -13,7 +13,7 @@ import lombok.*;
 @AllArgsConstructor
 @Entity(name = Result.ENTITY_NAME)
 @Table(name = Result.TABLE_NAME)
-public class Result {
+public class Result implements BaseEntity {
 
     // Static fields
 
