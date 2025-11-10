@@ -11,4 +11,8 @@ import java.util.UUID;
 @Repository
 public interface StudentRepository extends JpaRepository<Student, UUID>,
         PagingAndSortingRepository<Student, UUID>, JpaSpecificationExecutor<Student> {
+
+    boolean existsByCardNumber(Long cardNumber);
+
+    boolean existsByCardNumberAndIdNot(Long cardNumber, UUID id);
 }
