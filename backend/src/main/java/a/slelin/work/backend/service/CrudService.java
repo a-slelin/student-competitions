@@ -6,7 +6,7 @@ import a.slelin.work.backend.data.dto.SheetDto;
 import a.slelin.work.backend.filter.FilterChain;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
-import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.io.Serializable;
 
@@ -15,10 +15,10 @@ public interface CrudService<I extends Serializable, RD extends ReadDto, SD exte
     // Read
 
     @NotNull
-    SheetDto<RD> get(@NotNull @Valid Page<RD> page);
+    SheetDto<RD> get(@NotNull @Valid Pageable pageable);
 
     @NotNull
-    SheetDto<RD> getByFilter(@NotNull @Valid FilterChain filter, @NotNull @Valid Page<RD> page);
+    SheetDto<RD> getByFilter(@NotNull @Valid FilterChain filter, @NotNull @Valid Pageable pageable);
 
     @NotNull
     RD getById(@NotNull I id);

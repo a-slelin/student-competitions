@@ -7,17 +7,17 @@ import org.springframework.data.domain.Page;
 import java.util.List;
 
 @Builder
-public record PageDto<T>(@NotNull Integer number,
-                         @NotNull Integer size,
-                         @NotNull List<SortDto> sorts,
-                         @NotNull Long totalElements,
-                         @NotNull Integer totalPages,
-                         @NotNull Boolean first,
-                         @NotNull Boolean last,
-                         @NotNull Boolean empty) {
+public record PageDto(@NotNull Integer number,
+                      @NotNull Integer size,
+                      @NotNull List<SortDto> sorts,
+                      @NotNull Long totalElements,
+                      @NotNull Integer totalPages,
+                      @NotNull Boolean first,
+                      @NotNull Boolean last,
+                      @NotNull Boolean empty) {
 
-    public static <T> PageDto<T> of(Page<T> page) {
-        return new PageDto<>(
+    public static PageDto of(Page<?> page) {
+        return new PageDto(
                 page.getNumber(),
                 page.getSize(),
                 page.getSort().stream()
