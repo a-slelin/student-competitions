@@ -18,4 +18,18 @@ public enum CompetitionType {
     public String toRussian() {
         return russianName;
     }
+
+    public static CompetitionType fromRussian(String russianName) {
+        if (russianName == null) {
+            throw new IllegalArgumentException("Competition type is not null");
+        }
+
+        for (CompetitionType type : values()) {
+            if (type.russianName.equals(russianName)) {
+                return type;
+            }
+        }
+
+        throw new IllegalArgumentException("Unknown competition type: " + russianName);
+    }
 }
