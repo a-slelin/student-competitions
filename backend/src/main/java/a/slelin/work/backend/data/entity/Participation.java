@@ -46,7 +46,7 @@ public class Participation extends Audit implements BaseEntity {
     @Min(0)
     private Integer points;
 
-    @Lob
+    @Column(columnDefinition = "TEXT")
     @NotBlankNull
     private String description;
 

@@ -1,7 +1,9 @@
 package a.slelin.work.backend.data.entity;
 
 import jakarta.persistence.AttributeConverter;
+import jakarta.persistence.Converter;
 
+@Converter
 public class FacultyConverter implements AttributeConverter<Faculty, String> {
 
     @Override

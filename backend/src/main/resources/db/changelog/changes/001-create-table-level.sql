@@ -11,7 +11,7 @@ CREATE TABLE level (
         CHECK (LENGTH(TRIM(name)) >= 3 AND LENGTH(TRIM(name)) <= 50),
 
     sort_order INTEGER NOT NULL
-        CHECK (sort_order >= 0),
+        CHECK (sort_order >= 0)
 );
 
 --rollback DROP TABLE IF EXISTS level
