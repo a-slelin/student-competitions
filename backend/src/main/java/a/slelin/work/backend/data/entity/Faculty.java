@@ -1,29 +1,26 @@
 package a.slelin.work.backend.data.entity;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+@AllArgsConstructor
 public enum Faculty {
     BIOLOGY("Факультет биологии и экологии", "Faculty of Biology and Ecology"),
-    IT("Факультет информатики и вычислительной техники", "Faculty of Computer Science and Engineering"),
+    COMPUTER_SCIENCE("Факультет информатики и вычислительной техники", "Faculty of Computer Science and Engineering"),
     HISTORY("Исторический факультет", "Faculty of History"),
-    MATH("Математический факультет", "Faculty of Mathematics"),
-    PSYCHO("Факультет психологии", "Faculty of Psychology"),
-    SOCIO_POLITICAL("Факультет социально-политических наук", "Faculty of Social and Political Sciences"),
+    MATHEMATICS("Математический факультет", "Faculty of Mathematics"),
+    PSYCHOLOGY("Факультет психологии", "Faculty of Psychology"),
+    SOCIAL_POLITICAL("Факультет социально-политических наук", "Faculty of Social and Political Sciences"),
     LANGUAGES("Факультет иностранных языков", "Faculty of Foreign Languages"),
-    PHYSIC("Физико-технический факультет", "Faculty of Physics and Technology"),
-    PHILOLOGY("Факультет филологии и коммуникации", "Faculty of Philology and Communication"),
-    ECONOMIC("Экономический факультет", "Faculty of Economics"),
+    PHYSICS("Физико-технический факультет", "Faculty of Physics and Technology"),
+    PHILOLOGY_COMMUNICATION("Факультет филологии и коммуникации", "Faculty of Philology and Communication"),
+    ECONOMICS("Экономический факультет", "Faculty of Economics"),
     LAW("Юридический факультет", "Faculty of Law");
 
     private final String russianName;
 
     @Getter
     private final String displayName;
-
-    Faculty(String russianName, String displayName) {
-        this.russianName = russianName;
-        this.displayName = displayName;
-    }
 
     public String toRussian() {
         return russianName;
@@ -41,9 +38,5 @@ public enum Faculty {
         }
 
         throw new IllegalArgumentException("Unknown faculty: " + russianName);
-    }
-
-    public static String toRussian(Faculty faculty) {
-        return faculty.russianName;
     }
 }

@@ -11,10 +11,9 @@ import java.util.UUID;
 @Getter
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor
 @Entity(name = Student.ENTITY_NAME)
 @Table(name = Student.TABLE_NAME)
-public class Student extends Audit {
+public class Student extends Audit implements BaseEntity {
 
     // Static fields
 
@@ -51,6 +50,7 @@ public class Student extends Audit {
 
     @Column(length = 50, nullable = false)
     @NotNull
+    @Enumerated(EnumType.STRING)
     private Faculty faculty;
 
     @Column(length = 20)
@@ -68,6 +68,31 @@ public class Student extends Audit {
     @Column(length = 20)
     @Phone
     private String phone;
+
+    // Constructors
+
+    public Student(UUID id, String name, String surname, Long cardNumber, Faculty faculty) {
+        this(id, name, surname, null, cardNumber, faculty, null, null, null, null);
+    }
+
+    public Student(String name, String surname, Long cardNumber, Faculty faculty) {
+        this(null, name, surname, null, cardNumber, faculty, null, null, null, null);
+    }
+
+    @Builder
+    public Student(UUID id, String name, String surname, String middleName, Long cardNumber,
+                   Faculty faculty, String department, String studyGroup, String email, String phone) {
+        this.id = id;
+        this.name = name;
+        this.surname = surname;
+        this.middleName = middleName;
+        this.cardNumber = cardNumber;
+        this.faculty = faculty;
+        this.department = department;
+        this.studyGroup = studyGroup;
+        this.email = email;
+        this.phone = phone;
+    }
 
     // Methods
 
@@ -88,7 +113,7 @@ public class Student extends Audit {
                     phone = %s.
                     %s
                 
-                """.formatted(id, name, surname, middleName, cardNumber, faculty,
+                """.formatted(id, name, surname, middleName, cardNumber, faculty.getDisplayName(),
                 department, studyGroup, email, phone, super.toString());
     }
 
