@@ -2,6 +2,8 @@ package a.slelin.work.backend.data.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -30,6 +32,19 @@ public class Audit {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
+    // Callbacks
+
+    @PrePersist
+    private void prePersist() {
+        this.createdAt = LocalDateTime.now();
+        preUpdate();
+    }
+
+    @PreUpdate
+    private void preUpdate() {
+        this.updatedAt = LocalDateTime.now();
+    }
+
     // Methods
 
     @Override
@@ -37,7 +52,7 @@ public class Audit {
         return """
                 Audit:
                     \tcreatedAt = %s,
-                    \tupdateAt = %s.
+                    \tupdatedAt = %s.
                 
                 """.formatted(createdAt == null ? null : createdAt.format(formatter),
                 updatedAt == null ? null : updatedAt.format(formatter));
