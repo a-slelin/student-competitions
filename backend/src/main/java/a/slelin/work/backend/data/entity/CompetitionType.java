@@ -1,7 +1,9 @@
 package a.slelin.work.backend.data.entity;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+@AllArgsConstructor
 public enum CompetitionType {
     OLYMPIAD("Олимпиада", "Olympiad"),
     CONTEST("Состязание", "Contest"),
@@ -12,11 +14,6 @@ public enum CompetitionType {
 
     @Getter
     private final String displayName;
-
-    CompetitionType(String russianName, String displayName) {
-        this.russianName = russianName;
-        this.displayName = displayName;
-    }
 
     public String toRussian() {
         return russianName;

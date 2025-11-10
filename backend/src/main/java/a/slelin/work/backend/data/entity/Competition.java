@@ -11,7 +11,6 @@ import java.util.UUID;
 @Getter
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor
 @Entity(name = Competition.ENTITY_NAME)
 @Table(name = Competition.TABLE_NAME)
 public class Competition extends Audit implements BaseEntity {
@@ -40,6 +39,24 @@ public class Competition extends Audit implements BaseEntity {
     @Enumerated(EnumType.STRING)
     private CompetitionType type;
 
+    // Constructors
+
+    public Competition(UUID id, String name, CompetitionType type) {
+        this(id, name, null, type);
+    }
+
+    public Competition(String name, CompetitionType type) {
+        this(null, name, null, type);
+    }
+
+    @Builder
+    public Competition(UUID id, String name, String organizer, CompetitionType type) {
+        this.id = id;
+        this.name = name;
+        this.organizer = organizer;
+        this.type = type;
+    }
+
     // Methods
 
     @Override
@@ -53,7 +70,7 @@ public class Competition extends Audit implements BaseEntity {
                     type = %s.
                     %s
                 
-                """.formatted(id, name, organizer, type, super.toString());
+                """.formatted(id, name, organizer, type.getDisplayName(), super.toString());
     }
 
     public String toShortString() {
