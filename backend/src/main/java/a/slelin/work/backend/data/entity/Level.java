@@ -7,7 +7,6 @@ import lombok.*;
 @Getter
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor
 @Entity(name = Level.ENTITY_NAME)
 @Table(name = Level.TABLE_NAME)
 public class Level implements BaseEntity {
@@ -23,7 +22,6 @@ public class Level implements BaseEntity {
     @Id
     @Column(length = 20)
     @Size(min = 3, max = 20)
-    @NotNull
     @Pattern(regexp = "^[A-Z]+$")
     private String code;
 
@@ -38,6 +36,18 @@ public class Level implements BaseEntity {
     @NotNull
     @Min(0)
     private Integer sortOrder;
+
+    // Constructors
+
+    public Level(String name, Integer sortOrder) {
+        this(null, name, sortOrder);
+    }
+
+    public Level(String code, String name, Integer sortOrder) {
+        this.code = code;
+        this.name = name;
+        this.sortOrder = sortOrder;
+    }
 
     // Methods
 
