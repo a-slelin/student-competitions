@@ -6,7 +6,9 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.UUID;
+
 @Repository
-public interface ParticipationRepository extends JpaRepository<Participation, String>,
-        PagingAndSortingRepository<Participation, String>, JpaSpecificationExecutor<Participation> {
+public interface ParticipationRepository extends JpaRepository<Participation, UUID>,
+        PagingAndSortingRepository<Participation, UUID>, JpaSpecificationExecutor<Participation> {
 }
