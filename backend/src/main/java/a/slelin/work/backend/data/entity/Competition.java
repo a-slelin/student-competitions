@@ -55,4 +55,8 @@ public class Competition extends Audit implements BaseEntity {
                 
                 """.formatted(id, name, organizer, type, super.toString());
     }
+
+    public String toShortString() {
+        return "(id = %s, name = %s)".formatted(id, name);
+    }
 }

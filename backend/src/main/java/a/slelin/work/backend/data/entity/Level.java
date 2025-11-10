@@ -55,4 +55,8 @@ public class Level implements BaseEntity {
                 
                 """.formatted(code, name, sortOrder);
     }
+
+    public String toShortString() {
+        return "(code = %s, name = %s)".formatted(code, name);
+    }
 }

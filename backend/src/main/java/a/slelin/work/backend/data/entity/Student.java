@@ -91,4 +91,8 @@ public class Student extends Audit {
                 """.formatted(id, name, surname, middleName, cardNumber, faculty,
                 department, studyGroup, email, phone, super.toString());
     }
+
+    public String toShortString() {
+        return "(id = %s, cardNumber = %s)".formatted(id, cardNumber);
+    }
 }
