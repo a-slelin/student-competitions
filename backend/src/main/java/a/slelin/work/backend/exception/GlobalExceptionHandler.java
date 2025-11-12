@@ -24,6 +24,17 @@ public class GlobalExceptionHandler {
                 .timeStamp(LocalDateTime.now());
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ErrorResponse> handleIllegalArgumentException(IllegalArgumentException e,
+                                                                        HttpServletRequest request) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                buildDefault(e, request)
+                        .httpStatus(HttpStatus.BAD_REQUEST.value())
+                        .debugMessage("Illegal arguments on request.")
+                        .build()
+        );
+    }
+
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<ErrorResponse> handleValidationException(ConstraintViolationException e,
                                                                    HttpServletRequest request) {
