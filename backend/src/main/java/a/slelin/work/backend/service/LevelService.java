@@ -65,6 +65,10 @@ public class LevelService implements CrudService<String, ReadLevelDto, SaveLevel
     @NotNull
     public String save(@NotNull @Valid SaveLevelDto instance) {
 
+        if (repo.existsById(instance.code())) {
+            throw new NotUniqueFieldException(Level.class, "code", instance.code());
+        }
+
         if (repo.existsByName(instance.name())) {
             throw new NotUniqueFieldException(Level.class, "name", instance.name());
         }

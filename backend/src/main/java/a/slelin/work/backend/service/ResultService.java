@@ -64,6 +64,11 @@ public class ResultService implements CrudService<String, ReadResultDto, SaveRes
     @Override
     @NotNull
     public String save(@NotNull @Valid SaveResultDto instance) {
+
+        if (repo.existsById(instance.code())) {
+            throw new NotUniqueFieldException(Result.class, "code", instance.code());
+        }
+
         if (repo.existsByName(instance.name())) {
             throw new NotUniqueFieldException(Result.class, "name", instance.name());
         }
