@@ -55,18 +55,22 @@ public class Student extends Audit implements BaseEntity {
 
     @Column(length = 20)
     @NotBlankNull
+    @Size(min = 3, max = 20)
     private String department;
 
     @Column(length = 50, name = "study_group")
     @NotBlankNull
+    @Size(min = 3, max = 50)
     private String studyGroup;
 
     @Column(length = 100)
     @Email
+    @Size(min = 3, max = 100)
     private String email;
 
     @Column(length = 20)
     @Phone
+    @Size(min = 3, max = 20)
     private String phone;
 
     // Constructors

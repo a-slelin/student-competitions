@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 
 import java.util.UUID;
@@ -12,8 +13,6 @@ import java.util.UUID;
 @Getter
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor
-@Builder
 @Entity(name = Participation.ENTITY_NAME)
 @Table(
         name = Participation.TABLE_NAME,
@@ -42,6 +41,7 @@ public class Participation extends Audit implements BaseEntity {
 
     @Column(length = 100)
     @NotBlankNull
+    @Size(min = 3, max = 100)
     private String supervisor;
 
     @Min(0)
@@ -52,7 +52,6 @@ public class Participation extends Audit implements BaseEntity {
     private String description;
 
     @Column(name = "is_blocked", nullable = false)
-    @NotNull
     private Boolean isBlocked;
 
     // Relationships
@@ -80,6 +79,43 @@ public class Participation extends Audit implements BaseEntity {
     @NotNull
     @Valid
     private Result result;
+
+    // Constructors
+
+    public Participation(UUID id, Student student, Competition competition, Level level, Result result,
+                         Integer year, Boolean isBlocked) {
+        this(id, student, competition, level, result, year, null, null, null, isBlocked);
+    }
+
+    public Participation(UUID id, Student student, Competition competition, Level level, Result result,
+                         Integer year) {
+        this(id, student, competition, level, result, year, null, null, null, null);
+    }
+
+    public Participation(Student student, Competition competition, Level level, Result result,
+                         Integer year, Boolean isBlocked) {
+        this(null, student, competition, level, result, year, null, null, null, isBlocked);
+    }
+
+    public Participation(Student student, Competition competition, Level level, Result result,
+                         Integer year) {
+        this(null, student, competition, level, result, year, null, null, null, null);
+    }
+
+    @Builder
+    public Participation(UUID id, Student student, Competition competition, Level level, Result result,
+                         Integer year, String supervisor, Integer points, String description, Boolean isBlocked) {
+        this.id = id;
+        this.student = student;
+        this.competition = competition;
+        this.level = level;
+        this.result = result;
+        this.year = year;
+        this.supervisor = supervisor;
+        this.points = points;
+        this.description = description;
+        this.isBlocked = isBlocked;
+    }
 
     // Callbacks
 

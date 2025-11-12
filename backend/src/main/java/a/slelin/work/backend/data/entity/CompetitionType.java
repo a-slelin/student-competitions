@@ -21,11 +21,11 @@ public enum CompetitionType {
 
     public static CompetitionType fromRussian(String russianName) {
         if (russianName == null) {
-            throw new IllegalArgumentException("Competition type is not null");
+            throw new IllegalArgumentException("Competition type should be not null");
         }
 
         for (CompetitionType type : values()) {
-            if (type.russianName.equals(russianName)) {
+            if (type.russianName.equalsIgnoreCase(russianName)) {
                 return type;
             }
         }

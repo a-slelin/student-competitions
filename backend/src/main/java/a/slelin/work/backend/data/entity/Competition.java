@@ -34,7 +34,7 @@ public class Competition extends Audit implements BaseEntity {
     @NotBlankNull
     private String organizer;
 
-    @Column(length = 50)
+    @Column(length = 50, nullable = false)
     @NotNull
     @Enumerated(EnumType.STRING)
     private CompetitionType type;

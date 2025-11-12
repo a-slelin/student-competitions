@@ -28,11 +28,11 @@ public enum Faculty {
 
     public static Faculty fromRussian(String russianName) {
         if (russianName == null) {
-            throw new IllegalArgumentException("Faculty is not null");
+            throw new IllegalArgumentException("Faculty should be not null");
         }
 
         for (Faculty faculty : values()) {
-            if (faculty.russianName.equals(russianName)) {
+            if (faculty.russianName.equalsIgnoreCase(russianName)) {
                 return faculty;
             }
         }

@@ -15,10 +15,10 @@ import java.time.format.DateTimeFormatter;
 @MappedSuperclass
 @Getter
 @EqualsAndHashCode
-@NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Audit {
 
-    // Static Fields
+    // Static fields
 
     public final static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
 
@@ -54,7 +54,9 @@ public class Audit {
                     \tcreatedAt = %s,
                     \tupdatedAt = %s.
                 
-                """.formatted(createdAt == null ? null : createdAt.format(formatter),
-                updatedAt == null ? null : updatedAt.format(formatter));
+                """.formatted(
+                createdAt == null ? "undefined" : createdAt.format(formatter),
+                updatedAt == null ? "undefined" : updatedAt.format(formatter)
+        );
     }
 }

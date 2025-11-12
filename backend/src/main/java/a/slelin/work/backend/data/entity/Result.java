@@ -9,6 +9,7 @@ import lombok.*;
 
 @Getter
 @Setter
+@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity(name = Result.ENTITY_NAME)
 @Table(name = Result.TABLE_NAME)
@@ -26,6 +27,7 @@ public class Result implements BaseEntity {
     @Column(length = 20)
     @Size(min = 3, max = 20)
     @Pattern(regexp = "^[A-Z]+$")
+    @NotNull
     private String code;
 
     @Column(unique = true,
@@ -39,18 +41,6 @@ public class Result implements BaseEntity {
     @NotNull
     @Min(0)
     private Integer sortOrder;
-
-    // Constructors
-
-    public Result(String name, Integer sortOrder) {
-        this(null, name, sortOrder);
-    }
-
-    public Result(String code, String name, Integer sortOrder) {
-        this.code = code;
-        this.name = name;
-        this.sortOrder = sortOrder;
-    }
 
     // Methods
 
