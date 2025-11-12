@@ -3,4 +3,4 @@ spring:
     name: StudentCompetitionsApi
 
   profiles:
-    active: dev
+    active: prod
