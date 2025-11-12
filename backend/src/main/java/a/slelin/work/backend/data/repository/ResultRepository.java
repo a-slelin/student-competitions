@@ -20,5 +20,5 @@ public interface ResultRepository extends JpaRepository<Result, String>,
 
     boolean existsByName(String name);
 
-    boolean existsByNameAndIdNot(String name, String id);
+    boolean existsByNameAndCodeNot(String name, String code);
 }

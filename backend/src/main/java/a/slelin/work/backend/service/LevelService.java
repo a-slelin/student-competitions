@@ -75,11 +75,11 @@ public class LevelService implements CrudService<String, ReadLevelDto, SaveLevel
     @Override
     @NotNull
     public ReadLevelDto update(@NotNull String id, @NotNull @Valid SaveLevelDto instance) {
-        if (!repo.existById(id)) {
+        if (!repo.existsById(id)) {
             throw new EntityNotFoundException(Level.class, id);
         }
 
-        if (repo.existsByNameAndIdNot(instance.name(), id)) {
+        if (repo.existsByNameAndCodeNot(instance.name(), id)) {
             throw new NotUniqueFieldException(Level.class, "name", instance.name());
         }
 
@@ -95,7 +95,7 @@ public class LevelService implements CrudService<String, ReadLevelDto, SaveLevel
         Level level = repo.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(Level.class, id));
 
-        if (instance.name() != null && repo.existsByNameAndIdNot(instance.name(), id)) {
+        if (instance.name() != null && repo.existsByNameAndCodeNot(instance.name(), id)) {
             throw new NotUniqueFieldException(Level.class, "name", instance.name());
         }
 
@@ -106,7 +106,7 @@ public class LevelService implements CrudService<String, ReadLevelDto, SaveLevel
 
     @Override
     public void deleteById(@NotNull String id) {
-        if (!repo.existById(id)) {
+        if (!repo.existsById(id)) {
             throw new EntityNotFoundException(Level.class, id);
         }
 

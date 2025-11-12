@@ -20,7 +20,5 @@ public interface LevelRepository extends JpaRepository<Level, String>,
 
     boolean existsByName(String name);
 
-    boolean existById(String id);
-
-    boolean existsByNameAndIdNot(String name, String id);
+    boolean existsByNameAndCodeNot(String name, String code);
 }

@@ -78,7 +78,7 @@ public class ResultService implements CrudService<String, ReadResultDto, SaveRes
             throw new EntityNotFoundException(Result.class, id);
         }
 
-        if (!repo.existsByNameAndIdNot(instance.name(), id)) {
+        if (!repo.existsByNameAndCodeNot(instance.name(), id)) {
             throw new NotUniqueFieldException(Result.class, "name", instance.name());
         }
 
@@ -94,7 +94,7 @@ public class ResultService implements CrudService<String, ReadResultDto, SaveRes
         Result result = repo.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(Result.class, id));
 
-        if (instance.name() != null && repo.existsByNameAndIdNot(instance.name(), id)) {
+        if (instance.name() != null && repo.existsByNameAndCodeNot(instance.name(), id)) {
             throw new NotUniqueFieldException(Result.class, "name", instance.name());
         }
 
