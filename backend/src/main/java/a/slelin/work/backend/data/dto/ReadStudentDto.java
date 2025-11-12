@@ -1,9 +1,10 @@
 package a.slelin.work.backend.data.dto;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;
 
 @Builder
-public record ReadStudentDto(String id,
+public record ReadStudentDto(@NotBlank String id,
                              String name,
                              String surname,
                              String middleName,

@@ -1,5 +1,9 @@
 package a.slelin.work.backend.data.dto;
 
-public record SaveResultDto(String name,
+import lombok.Builder;
+
+@Builder
+public record SaveResultDto(String code,
+                            String name,
                             Integer order) implements SaveDto {
 }
