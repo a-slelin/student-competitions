@@ -25,7 +25,7 @@ public class LevelMapper implements Mapper<Level, ReadLevelDto, SaveLevelDto> {
     @Override
     @NotNull
     public Level toEntity(@NotNull @Valid SaveLevelDto dto) {
-        return new Level(dto.name(), dto.order());
+        return new Level(dto.code(), dto.name(), dto.order());
     }
 
     @Override

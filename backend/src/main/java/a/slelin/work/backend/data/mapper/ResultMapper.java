@@ -25,7 +25,7 @@ public class ResultMapper implements Mapper<Result, ReadResultDto, SaveResultDto
     @Override
     @NotNull
     public Result toEntity(@NotNull @Valid SaveResultDto dto) {
-        return new Result(dto.name(), dto.order());
+        return new Result(dto.code(), dto.name(), dto.order());
     }
 
     @Override

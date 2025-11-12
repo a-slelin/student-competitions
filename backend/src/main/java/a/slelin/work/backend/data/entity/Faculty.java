@@ -31,6 +31,8 @@ public enum Faculty {
             throw new IllegalArgumentException("Faculty should be not null");
         }
 
+        russianName = russianName.trim();
+
         for (Faculty faculty : values()) {
             if (faculty.russianName.equalsIgnoreCase(russianName)) {
                 return faculty;
@@ -38,5 +40,22 @@ public enum Faculty {
         }
 
         throw new IllegalArgumentException("Unknown faculty: " + russianName);
+    }
+
+    public static Faculty from(String value) {
+        if (value == null) {
+            throw new IllegalArgumentException("Faculty should be not null");
+        }
+
+        value = value.trim();
+
+        for (Faculty faculty : values()) {
+            if (faculty.russianName.equalsIgnoreCase(value) ||
+                    faculty.displayName.equalsIgnoreCase(value)) {
+                return faculty;
+            }
+        }
+
+        throw new IllegalArgumentException("Unknown faculty: " + value);
     }
 }

@@ -37,7 +37,7 @@ public class StudentMapper implements Mapper<Student, ReadStudentDto, SaveStuden
                 .surname(dto.surname())
                 .middleName(dto.middleName())
                 .cardNumber(dto.cardNumber())
-                .faculty(Faculty.fromRussian(dto.faculty()))
+                .faculty(Faculty.from(dto.faculty()))
                 .department(dto.department())
                 .studyGroup(dto.studyGroup())
                 .email(dto.email())
@@ -64,7 +64,7 @@ public class StudentMapper implements Mapper<Student, ReadStudentDto, SaveStuden
         }
 
         if (dto.faculty() != null) {
-            entity.setFaculty(Faculty.fromRussian(dto.faculty()));
+            entity.setFaculty(Faculty.from(dto.faculty()));
         }
 
         if (dto.department() != null) {

@@ -24,6 +24,8 @@ public enum CompetitionType {
             throw new IllegalArgumentException("Competition type should be not null");
         }
 
+        russianName = russianName.trim();
+
         for (CompetitionType type : values()) {
             if (type.russianName.equalsIgnoreCase(russianName)) {
                 return type;
@@ -31,5 +33,22 @@ public enum CompetitionType {
         }
 
         throw new IllegalArgumentException("Unknown competition type: " + russianName);
+    }
+
+    public static CompetitionType from(String value) {
+        if (value == null) {
+            throw new IllegalArgumentException("Competition type should be not null.");
+        }
+
+        value = value.trim();
+
+        for (CompetitionType type : values()) {
+            if (type.russianName.equalsIgnoreCase(value) ||
+                    type.displayName.equalsIgnoreCase(value)) {
+                return type;
+            }
+        }
+
+        throw new IllegalArgumentException("Unknown competition type: " + value);
     }
 }

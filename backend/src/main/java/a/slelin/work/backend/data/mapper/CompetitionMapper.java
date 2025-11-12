@@ -30,7 +30,7 @@ public class CompetitionMapper implements Mapper<Competition, ReadCompetitionDto
         return Competition.builder()
                 .name(dto.name())
                 .organizer(dto.organizer())
-                .type(CompetitionType.fromRussian(dto.type()))
+                .type(CompetitionType.from(dto.type()))
                 .build();
     }
 
@@ -45,7 +45,7 @@ public class CompetitionMapper implements Mapper<Competition, ReadCompetitionDto
         }
 
         if (dto.type() != null) {
-            entity.setType(CompetitionType.fromRussian(dto.type()));
+            entity.setType(CompetitionType.from(dto.type()));
         }
     }
 }
