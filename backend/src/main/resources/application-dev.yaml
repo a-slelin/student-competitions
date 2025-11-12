@@ -32,3 +32,4 @@ api:
   api-prefix: "api"
   student-prefix: "students"
   search-prefix: "search"
+  competition-prefix: "competitions"
