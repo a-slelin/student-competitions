@@ -35,3 +35,4 @@ api:
   competition-prefix: "competitions"
   participation-prefix: "participations"
   level-prefix: "levels"
+  result-prefix: "results"
