@@ -12,7 +12,8 @@ public record ControllerConfig(@DefaultValue("http") String protocol,
                                @DefaultValue("results") String resultPrefix,
                                @DefaultValue("students") String studentPrefix,
                                @DefaultValue("competitions") String competitionPrefix,
-                               @DefaultValue("participations") String participationPrefix) {
+                               @DefaultValue("participations") String participationPrefix,
+                               @DefaultValue("search") String searchPrefix) {
 
     public String getBaseUri() {
         return "%s://%s:%d".formatted(protocol, server, port);

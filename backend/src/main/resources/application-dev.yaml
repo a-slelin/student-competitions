@@ -27,3 +27,8 @@ spring:
     change-log: classpath:/db/changelog/db.changelog-master.xml
     enabled: true
     drop-first: false
+
+api:
+  api-prefix: "api"
+  student-prefix: "students"
+  search-prefix: "search"
