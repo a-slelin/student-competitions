@@ -26,7 +26,7 @@ public interface CrudService<I extends Serializable, RD extends ReadDto, SD exte
     // Create
 
     @NotNull
-    I save(SD instance);
+    I save(@NotNull @Valid SD instance);
 
     // Update
 
@@ -34,7 +34,7 @@ public interface CrudService<I extends Serializable, RD extends ReadDto, SD exte
     RD update(@NotNull I id, @NotNull @Valid SD instance);
 
     @NotNull
-    RD patch(@NotNull I id, @Valid SD instance);
+    RD patch(@NotNull I id, @NotNull @Valid SD instance);
 
     // Delete
 

@@ -94,7 +94,7 @@ public class CompetitionService implements CrudService<UUID, ReadCompetitionDto,
     }
 
     @Override
-    public void deleteById(UUID id) {
+    public void deleteById(@NotNull UUID id) {
         if (!repo.existsById(id)) {
             throw new EntityNotFoundException(Competition.class, id);
         }
