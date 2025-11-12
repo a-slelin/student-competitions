@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
 @Getter
 @AllArgsConstructor
 public enum PhoneLocal {
-    RU(Pattern.compile("^7\\d{10}$"));
+    RU(Pattern.compile("^\\+?[78][\\s\\-]?\\(?[0-9]{3}\\)?[\\s\\-]?[0-9]{3}[\\s\\-]?[0-9]{2}[\\s\\-]?[0-9]{2}$"));
 
     private final Pattern pattern;
 
