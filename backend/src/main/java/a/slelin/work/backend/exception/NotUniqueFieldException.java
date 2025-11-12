@@ -1,7 +1,9 @@
 package a.slelin.work.backend.exception;
 
 import a.slelin.work.backend.data.entity.BaseEntity;
+import lombok.Getter;
 
+@Getter
 public class NotUniqueFieldException extends RuntimeException {
 
     private final Class<? extends BaseEntity> clazz;
