@@ -14,5 +14,6 @@
     <include file="changes/007-create-trigger-update_at.sql" relativeToChangelogFile="true"/>
     <include file="changes/008-create-trigger-created_at.sql" relativeToChangelogFile="true"/>
     <include file="changes/009-add-default-level-data.sql" relativeToChangelogFile="true"/>
+    <include file="changes/010-add-default-result-data.sql" relativeToChangelogFile="true"/>
 
 </databaseChangeLog>
