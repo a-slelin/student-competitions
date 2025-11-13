@@ -50,7 +50,6 @@ public class Student extends Audit implements BaseEntity {
 
     @Column(length = 50, nullable = false)
     @NotNull
-    @Enumerated(EnumType.STRING)
     private Faculty faculty;
 
     @Column(length = 20)
