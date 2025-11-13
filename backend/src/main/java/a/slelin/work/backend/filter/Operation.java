@@ -1,10 +1,12 @@
 package a.slelin.work.backend.filter;
 
 import a.slelin.work.backend.exception.FilterParseOperationException;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @AllArgsConstructor
+@JsonDeserialize(using = OperationDeserializer.class)
 public enum Operation {
     EQ("равно", "equals"),
     NEQ("не равно", "not equals"),

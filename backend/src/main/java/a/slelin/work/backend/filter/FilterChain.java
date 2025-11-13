@@ -14,6 +14,10 @@ public class FilterChain {
         Collections.copy(this.filters, filters);
     }
 
+    public FilterChain(){
+        this.filters = new ArrayList<>();
+    }
+
     public List<Filter> getFilters() {
         return Collections.unmodifiableList(filters);
     }
