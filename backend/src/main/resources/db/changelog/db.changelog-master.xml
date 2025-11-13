@@ -17,5 +17,6 @@
     <include file="changes/010-add-default-result-data.sql" relativeToChangelogFile="true"/>
     <include file="changes/011-add-default-student-data.sql" relativeToChangelogFile="true"/>
     <include file="changes/012-add-default-competition-data.sql" relativeToChangelogFile="true"/>
+    <include file="changes/013-add-default-participation-data.sql" relativeToChangelogFile="true"/>
 
 </databaseChangeLog>
