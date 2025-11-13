@@ -1,7 +1,7 @@
 # Игнорируемые файлы для IntelliJ IDEA
 *.idea/
 *target/
+*.mvn/
 
-# Игнорируемые .xml файлы (в будущем будут удалены)
-UpperLevelScheme.xml
-Scheme.xml
+*.bat
+*.exe

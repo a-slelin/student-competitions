@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.9.xsd">
+
+    <include file="changes/001-create-table-level.sql" relativeToChangelogFile="true"/>
+    <include file="changes/002-create-table-result.sql" relativeToChangelogFile="true"/>
+    <include file="changes/003-create-table-student.sql" relativeToChangelogFile="true"/>
+    <include file="changes/004-create-table-competition.sql" relativeToChangelogFile="true"/>
+    <include file="changes/005-create-table-participation.sql" relativeToChangelogFile="true"/>
+    <include file="changes/006-create-trigger-block-edit.sql" relativeToChangelogFile="true"/>
+    <include file="changes/007-create-trigger-update_at.sql" relativeToChangelogFile="true"/>
+    <include file="changes/008-create-trigger-created_at.sql" relativeToChangelogFile="true"/>
+    <include file="changes/009-add-default-level-data.sql" relativeToChangelogFile="true"/>
+    <include file="changes/010-add-default-result-data.sql" relativeToChangelogFile="true"/>
+    <include file="changes/011-add-default-student-data.sql" relativeToChangelogFile="true"/>
+    <include file="changes/012-add-default-competition-data.sql" relativeToChangelogFile="true"/>
+    <include file="changes/013-add-default-participation-data.sql" relativeToChangelogFile="true"/>
+
+</databaseChangeLog>
