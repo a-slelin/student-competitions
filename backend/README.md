@@ -537,7 +537,7 @@ cd student-competitions/backend;
 docker compose up;
 ```
 
-Для остановки программы можно сделать следующее:
+Для остановки программы можно сделать следующее(или "Ctrl+C"):
 
 ```shell
 
