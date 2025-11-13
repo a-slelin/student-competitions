@@ -24,6 +24,18 @@ public class GlobalExceptionHandler {
                 .timeStamp(LocalDateTime.now());
     }
 
+    @ExceptionHandler(EditBlockedParticipationException.class)
+    public ResponseEntity<ErrorResponse> handleEditBlockedParticipation(EditBlockedParticipationException e,
+                                                                        HttpServletRequest request) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(
+                buildDefault(e, request)
+                        .httpStatus(HttpStatus.CONFLICT.value())
+                        .debugMessage("Cannot edit blocked participation.")
+                        .details(Map.of("participationId", e.getParticipationId()))
+                        .build()
+        );
+    }
+
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ErrorResponse> handleIllegalArgumentException(IllegalArgumentException e,
                                                                         HttpServletRequest request) {

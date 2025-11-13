@@ -7,6 +7,7 @@ import a.slelin.work.backend.data.dto.SheetDto;
 import a.slelin.work.backend.data.entity.Participation;
 import a.slelin.work.backend.data.mapper.ParticipationMapper;
 import a.slelin.work.backend.data.repository.ParticipationRepository;
+import a.slelin.work.backend.exception.EditBlockedParticipationException;
 import a.slelin.work.backend.exception.EntityNotFoundException;
 import a.slelin.work.backend.filter.FilterChain;
 import a.slelin.work.backend.filter.FilterUtil;
@@ -71,14 +72,17 @@ public class ParticipationService implements CrudService<UUID, ReadParticipation
     @Override
     @NotNull
     public ReadParticipationDto update(@NotNull UUID id, @NotNull @Valid SaveParticipationDto instance) {
-        if (!repo.existsById(id)) {
-            throw new EntityNotFoundException(Participation.class, id);
+        Participation participation = repo.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(Participation.class, id));
+
+        if (participation.getIsBlocked()) {
+            throw new EditBlockedParticipationException(id);
         }
 
-        Participation participation = mapper.toEntity(instance);
+        Participation participation2 = mapper.toEntity(instance);
         participation.setId(id);
 
-        return mapper.toDTO(repo.saveAndFlush(participation));
+        return mapper.toDTO(repo.saveAndFlush(participation2));
     }
 
     @Override
@@ -86,6 +90,10 @@ public class ParticipationService implements CrudService<UUID, ReadParticipation
     public ReadParticipationDto patch(@NotNull UUID id, @NotNull @Valid SaveParticipationDto instance) {
         Participation participation = repo.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(Participation.class, id));
+
+        if (participation.getIsBlocked()) {
+            throw new EditBlockedParticipationException(id);
+        }
 
         mapper.patch(instance, participation);
 
