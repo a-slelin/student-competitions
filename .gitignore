@@ -1,3 +1,7 @@
-# Игнорируемы файлы для IntelliJ IDEA
+# Игнорируемые файлы для IntelliJ IDEA
 *.idea/
 *target/
+*.mvn/
+
+*.bat
+*.exe
