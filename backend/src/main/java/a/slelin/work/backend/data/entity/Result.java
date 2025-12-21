@@ -1,11 +1,11 @@
 package a.slelin.work.backend.data.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -42,7 +42,17 @@ public class Result implements BaseEntity {
     @Min(0)
     private Integer sortOrder;
 
+    @OneToMany(mappedBy = "result", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Participation> participations = new ArrayList<>();
+
     // Methods
+
+    @Builder
+    public Result(String code, String name, Integer sortOrder) {
+        this.code = code;
+        this.name = name;
+        this.sortOrder = sortOrder;
+    }
 
     @Override
     public String toString() {

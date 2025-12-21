@@ -4,6 +4,9 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -39,7 +42,17 @@ public class Level implements BaseEntity {
     @Min(0)
     private Integer sortOrder;
 
+    @OneToMany(mappedBy = "level", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Participation> participations = new ArrayList<>();
+
     // Methods
+
+    @Builder
+    public Level(String code, String name, Integer sortOrder) {
+        this.code = code;
+        this.name = name;
+        this.sortOrder = sortOrder;
+    }
 
     @Override
     public String toString() {
