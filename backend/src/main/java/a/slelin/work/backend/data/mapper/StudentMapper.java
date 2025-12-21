@@ -21,6 +21,7 @@ public class StudentMapper implements Mapper<Student, ReadStudentDto, SaveStuden
                 .name(entity.getName())
                 .surname(entity.getSurname())
                 .middleName(entity.getMiddleName())
+                .cardNumber(entity.getCardNumber())
                 .faculty(entity.getFaculty().toRussian())
                 .department(entity.getDepartment())
                 .studyGroup(entity.getStudyGroup())
