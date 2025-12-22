@@ -79,11 +79,11 @@ public class ResultService implements CrudService<String, ReadResultDto, SaveRes
     @Override
     @NotNull
     public ReadResultDto update(@NotNull String id, @NotNull @Valid SaveResultDto instance) {
-        if (repo.existsById(id)) {
+        if (!repo.existsById(id)) {
             throw new EntityNotFoundException(Result.class, id);
         }
 
-        if (!repo.existsByNameAndCodeNot(instance.name(), id)) {
+        if (repo.existsByNameAndCodeNot(instance.name(), id)) {
             throw new NotUniqueFieldException(Result.class, "name", instance.name());
         }
 
