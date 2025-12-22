@@ -42,8 +42,7 @@ public class StudentController {
     }
 
     @PostMapping(consumes = "application/json")
-    public ResponseEntity<Void> create(@RequestBody SaveStudentDto instance,
-                                       UriComponentsBuilder uriBuilder) {
+    public ResponseEntity<Void> create(@RequestBody SaveStudentDto instance) {
         UUID id = service.save(instance);
 
         URI location = URI.create(config.getStudentUri() + "/" + id.toString());
