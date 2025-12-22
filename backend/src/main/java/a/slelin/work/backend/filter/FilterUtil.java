@@ -65,12 +65,12 @@ public final class FilterUtil {
                     String str = valueToType(value, String.class);
 
                     yield switch (operation) {
-                        case LIKE -> cb.like(expression, "%" + str + "%");
-                        case NOT_LIKE -> cb.notLike(expression, "%" + str + "%");
-                        case STARTS_WITH -> cb.like(expression, str + "%");
-                        case NOT_STARTS_WITH -> cb.notLike(expression, str + "%");
-                        case ENDS_WITH -> cb.like(expression, "%" + str);
-                        case NOT_ENDS_WITH -> cb.notLike(expression, "%" + str);
+                        case LIKE -> cb.like(cb.lower(expression), "%" + str.toLowerCase() + "%");
+                        case NOT_LIKE -> cb.notLike(cb.lower(expression), "%" + str.toLowerCase() + "%");
+                        case STARTS_WITH -> cb.like(cb.lower(expression), str.toLowerCase() + "%");
+                        case NOT_STARTS_WITH -> cb.notLike(cb.lower(expression), str.toLowerCase() + "%");
+                        case ENDS_WITH -> cb.like(cb.lower(expression), "%" + str.toLowerCase());
+                        case NOT_ENDS_WITH -> cb.notLike(cb.lower(expression), "%" + str.toLowerCase());
                         default -> throw new IllegalArgumentException("Unexpected value");
                     };
                 }
