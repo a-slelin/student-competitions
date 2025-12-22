@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -46,9 +47,9 @@ public final class FilterUtil {
                 case IS_NOT_NULL -> cb.isNotNull(path);
 
                 case GT, GE, LT, LE -> {
-                    Expression<Number> expression = pathToType(path, Number.class);
+                    Expression<Integer> expression = pathToType(path, Integer.class);
 
-                    Number number = valueToType(value, Number.class);
+                    Integer number = valueToType(value, Integer.class);
 
                     yield switch (operation) {
                         case GT -> cb.gt(expression, number);
@@ -106,10 +107,10 @@ public final class FilterUtil {
                 }
 
                 case BETWEEN, NOT_BETWEEN -> {
-                    Expression<Comparable> expression = pathToType(path, Comparable.class);
+                    Expression<Integer> expression = pathToType(path, Integer.class);
 
-                    Comparable from = valueToType(value, Comparable.class);
-                    Comparable to = valueToType(value2, Comparable.class);
+                    Integer from = valueToType(value, Integer.class);
+                    Integer to = valueToType(value2, Integer.class);
 
                     yield switch (operation) {
                         case BETWEEN -> cb.between(expression, from, to);
@@ -119,9 +120,10 @@ public final class FilterUtil {
                 }
 
                 case BEFORE, AFTER -> {
-                    Expression<LocalDateTime> expression = pathToType(path, LocalDateTime.class);
+                    Expression<LocalDate> expression = pathToType(path, LocalDate.class);
 
-                    LocalDateTime date = valueToType(value, LocalDateTime.class);
+
+                    LocalDate date = valueToType(value, LocalDate.class);
 
                     yield switch (operation) {
                         case BEFORE -> cb.lessThan(expression, date);
