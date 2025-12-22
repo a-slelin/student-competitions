@@ -56,7 +56,7 @@ CREATE TABLE student (
         CHECK (card_number >= 0),
 
     faculty VARCHAR(50) NOT NULL CHECK (faculty IN (
-	'Факультет биологии и экологии', 'Факультет Информатики и вычислительной техники',
+	'Факультет биологии и экологии', 'Факультет информатики и вычислительной техники',
 	'Исторический факультет', 'Математический факультет', 'Факультет психологии', 'Факультет социально-политических наук',
 	'Факультет иностранных языков', 'Физико-технический факультет', 'Факультет филологии и коммуникации', 'Экономический факультет',
 	'Юридический факультет')), -- Факультет
@@ -126,14 +126,14 @@ CREATE TABLE participation (
 -- ----------------------------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION prevent_blocked_update()
-RETURNS TRIGGER AS $$
+RETURNS TRIGGER AS '
 BEGIN
     IF OLD.is_blocked = TRUE THEN
-        RAISE EXCEPTION 'Редактирование записи заблокировано по регламенту';
+        RAISE EXCEPTION ''Редактирование записи заблокировано по регламенту'';
     END IF;
     RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+' LANGUAGE plpgsql;
 
 CREATE TRIGGER trg_prevent_blocked_update
 BEFORE UPDATE ON participation
@@ -145,26 +145,12 @@ EXECUTE FUNCTION prevent_blocked_update();
 -- ----------------------------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION update_timestamp()
-RETURNS TRIGGER AS $$
+RETURNS TRIGGER AS '
 BEGIN
     NEW.updated_at = CURRENT_TIMESTAMP;
     RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
-
-
---Уровни
-CREATE TRIGGER trg_level_updated_at
-BEFORE UPDATE ON level
-FOR EACH ROW
-EXECUTE FUNCTION update_timestamp();
-
-
--- Результаты
-CREATE TRIGGER trg_result_updated_at
-BEFORE UPDATE ON result
-FOR EACH ROW
-EXECUTE FUNCTION update_timestamp();
+' LANGUAGE plpgsql;
 
 
 -- Студенты
@@ -191,7 +177,7 @@ EXECUTE FUNCTION update_timestamp();
 -- ----------------------------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION check_created_at()
-RETURNS TRIGGER AS $$
+RETURNS TRIGGER AS '
 BEGIN
     IF TG_OP = ''UPDATE'' THEN
         IF OLD.created_at IS DISTINCT FROM NEW.created_at THEN
@@ -201,7 +187,7 @@ BEGIN
 
     RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+' LANGUAGE plpgsql;
 
 CREATE TRIGGER created_at_student_trigger
     BEFORE UPDATE ON student
