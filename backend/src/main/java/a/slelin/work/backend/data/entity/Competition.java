@@ -41,7 +41,7 @@ public class Competition extends Audit implements BaseEntity {
     @Enumerated(EnumType.STRING)
     private CompetitionType type;
 
-    @OneToMany(mappedBy = "competition", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "competition", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<Participation> participations = new ArrayList<>();
 
     // Constructors

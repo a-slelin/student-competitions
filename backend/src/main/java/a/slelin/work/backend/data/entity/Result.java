@@ -42,7 +42,7 @@ public class Result implements BaseEntity {
     @Min(0)
     private Integer sortOrder;
 
-    @OneToMany(mappedBy = "result", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "result", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<Participation> participations = new ArrayList<>();
 
     // Methods
