@@ -8,7 +8,7 @@ export default function ParticipationsTable({
   onDelete,
   onStudentClick,
   onCompetitionClick,
-  loading, // добавили флаг загрузки
+  loading, 
 }) {
   function handleSort(column) {
     if (sort.column === column) {
@@ -30,12 +30,12 @@ export default function ParticipationsTable({
         : ""
     }`;
 
-  // --- сначала проверяем загрузку ---
+
   if (loading) {
     return <div className="loading">Загрузка...</div>;
   }
 
-  // --- если данных нет ---
+
   if (!participations.length) {
     return <div className="empty-state">Нет записей</div>;
   }

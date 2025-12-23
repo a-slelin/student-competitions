@@ -16,10 +16,12 @@ export default function ParticipationsPage() {
 
   const [confirmModal, setConfirmModal] = useState({ show: false, id: null });
   const [formModal, setFormModal] = useState({ show: false, participation: null });
+  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
 
-  const normalizeApiUrl = (url) => {
+  // Функция очистки URL (если сервер шлет абсолютные ссылки)
+  const normalizeUrl = (url) => {
     if (!url) return null;
     try {
       const u = new URL(url);
@@ -29,144 +31,105 @@ export default function ParticipationsPage() {
     }
   };
 
-  const fetchEntities = async (urls) => {
-    const unique = [...new Set(urls.map(normalizeApiUrl).filter(Boolean))];
-    const results = await Promise.all(
-      unique.map(async (url) => {
+  // Функция "обогащения" данных: превращает ссылки в имена
+  const enrichParticipations = async (content) => {
+    if (!content || content.length === 0) return [];
+
+    const enriched = await Promise.all(
+      content.map(async (item) => {
         try {
-          const r = await fetch(url);
-          return r.ok ? await r.json() : null;
-        } catch {
-          return null;
+          const [studentData, compData, levelData, resultData] = await Promise.all([
+            item.student ? fetch(normalizeUrl(item.student)).then((r) => r.json()).catch(() => null) : null,
+            item.competition ? fetch(normalizeUrl(item.competition)).then((r) => r.json()).catch(() => null) : null,
+            item.level ? fetch(normalizeUrl(item.level)).then((r) => r.json()).catch(() => null) : null,
+            item.result ? fetch(normalizeUrl(item.result)).then((r) => r.json()).catch(() => null) : null,
+          ]);
+
+          return {
+            ...item,
+            studentName: studentData ? `${studentData.surname} ${studentData.name} ${studentData.middleName || ""}`.trim() : "Неизвестно",
+            faculty: studentData?.faculty || "-",
+            competitionName: compData?.name || "Неизвестно",
+            levelName: levelData?.name || "-",
+            resultName: resultData?.name || "-",
+            studentId: studentData?.id,
+            competitionId: compData?.id,
+            IsBlocked: item.isBlocked ?? false,
+          };
+        } catch (error) {
+          console.error("Ошибка при загрузке деталей для ID:", item.id, error);
+          return item;
         }
       })
     );
-    const map = {};
-    unique.forEach((u, i) => (map[u] = results[i]));
-    return map;
+
+    return enriched;
+  };
+
+  const loadParticipations = async () => {
+    setLoading(true);
+    try {
+      const url = "/api/participations/search";
+      const params = new URLSearchParams({ page: currentPage, size: pageSize });
+      if (sort.column) params.append("sort", `${sort.column},${sort.direction.toUpperCase()}`);
+
+      const res = await fetch(`${url}?${params}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          filters: search ? [{ field: "description", operation: "like", value: search }] : [],
+        }),
+      });
+
+      if (!res.ok) throw new Error("Ошибка загрузки");
+
+      const data = await res.json();
+      const enrichedContent = await enrichParticipations(data.content || []);
+      setParticipations(enrichedContent);
+      setTotalPages(data.page?.totalPages || 1);
+    } catch (e) {
+      console.error("Ошибка:", e);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
-    async function loadParticipations() {
-      try {
-        const params = new URLSearchParams({ page: currentPage, size: pageSize });
-        if (sort.column) params.append("sort", `${sort.column},${sort.direction}`);
-
-        const filters = [];
-        const term = search.trim();
-        const yearMatch = term.match(/^(\d{4})(-(\d{4}))?$/);
-
-        if (yearMatch) {
-          const fromYear = Number(yearMatch[1]);
-          const toYear = yearMatch[3] ? Number(yearMatch[3]) : fromYear;
-          filters.push({ field: "year", operation: "between", value: fromYear, value2: toYear });
-        } else if (term.length > 0) {
-          filters.push(
-            { field: "student.surname", operation: "like", value: term },
-            { field: "student.name", operation: "like", value: term },
-            { field: "student.middleName", operation: "like", value: term },
-            { field: "student.faculty", operation: "like", value: term },
-            { field: "level.name", operation: "like", value: term },
-            { field: "competition.name", operation: "like", value: term }
-          );
-        }
-
-        const body = filters.length > 0 ? { filters } : null;
-
-        const res = await fetch(
-          filters.length > 0 ? `/api/participations/search?${params}` : `/api/participations?${params}`,
-          body ? { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) } : {}
-        );
-
-        if (!res.ok) throw new Error("Ошибка загрузки");
-
-        const data = await res.json();
-
-        const studentUrls = data.content.map((p) => p.student);
-        const competitionUrls = data.content.map((p) => p.competition);
-        const levelUrls = data.content.map((p) => p.level);
-        const resultUrls = data.content.map((p) => p.result);
-
-        const [students, competitions, levels, results] = await Promise.all([
-          fetchEntities(studentUrls),
-          fetchEntities(competitionUrls),
-          fetchEntities(levelUrls),
-          fetchEntities(resultUrls),
-        ]);
-
-        const enriched = data.content.map((p) => {
-          const get = (url, map) => map[normalizeApiUrl(url)];
-
-          const s = get(p.student, students);
-          const c = get(p.competition, competitions);
-          const l = get(p.level, levels);
-          const r = get(p.result, results);
-
-          return {
-            ...p,
-            studentName: s ? `${s.surname} ${s.name} ${s.middleName || ""}`.trim() : "-",
-            faculty: s?.faculty || "-",
-            competitionName: c?.name || "-",
-            levelName: l?.name || "-",
-            resultName: r?.name || "-",
-            year: p.year ?? "-",
-            points: p.points ?? "-",
-            supervisor: p.supervisor || "-",
-            IsBlocked: p.isBlocked ?? false,
-            studentId: s?.id,
-            competitionId: c?.id,
-          };
-        });
-
-        setParticipations(enriched);
-        setTotalPages(data.page?.totalPages ?? 1);
-      } catch (e) {
-        alert(e.message);
-      }
-    }
-
     loadParticipations();
-  }, [currentPage, pageSize, search, sort]);
+  }, [currentPage, search, sort]);
 
-  const handleSave = async (form) => {
-    const payload = {
-      student: form.student,
-      competition: form.competition,
-      level: form.level,
-      result: form.result,
-      year: Number(form.year),
-      supervisor: form.supervisor || null,
-      points: form.points ? Number(form.points) : null,
-      description: form.description || null,
-    };
-
+  // Сохранение (POST/PATCH)
+  const handleSave = async (payload) => {
     try {
-      const res = formModal.participation
-        ? await fetch(`/api/participations/${formModal.participation.id}`, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload),
-          })
-        : await fetch("/api/participations", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload),
-          });
+      const isEdit = !!payload.id;
+      const url = isEdit ? `/api/participations/${payload.id}` : "/api/participations";
+      const method = isEdit ? "PATCH" : "POST";
 
-      if (!res.ok) throw new Error("Ошибка сохранения");
+      const res = await fetch(url, {
+        method: method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) {
+        const err = await res.text();
+        throw new Error(err || "Ошибка сохранения");
+      }
 
       setFormModal({ show: false, participation: null });
-      setCurrentPage(0);
+      loadParticipations();
     } catch (e) {
       alert(e.message);
     }
   };
 
+  // Удаление
   const handleDelete = async () => {
     try {
-      await fetch(`/api/participations/${confirmModal.id}`, { method: "DELETE" });
+      const res = await fetch(`/api/participations/${confirmModal.id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("Ошибка удаления");
       setConfirmModal({ show: false, id: null });
-      setCurrentPage(0);
+      loadParticipations();
     } catch (e) {
       alert(e.message);
     }
@@ -179,7 +142,7 @@ export default function ParticipationsPage() {
         <SearchBar
           search={search}
           setSearch={setSearch}
-          placeholder="Поиск по ФИО, факультету, уровню, соревнованию или году (например, 2022-2024)"
+          placeholder="Поиск по ФИО, факультету, уровню, соревнованию или году"
           buttonLabel="Новое участие"
           onButtonClick={() => setFormModal({ show: true, participation: null })}
         />
@@ -189,17 +152,23 @@ export default function ParticipationsPage() {
         participations={participations}
         sort={sort}
         setSort={setSort}
-        onEdit={(p) => !p.IsBlocked && setFormModal({ show: true, participation: p })}
+        onEdit={(p) => setFormModal({ show: true, participation: p })}
         onDelete={(id) => setConfirmModal({ show: true, id })}
         onStudentClick={(studentId) => navigate(`/students/${studentId}`)}
         onCompetitionClick={(competitionId) => navigate(`/competitions/${competitionId}`)}
       />
 
-      <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
+      {loading && <div style={{ marginTop: 10, color: '#888' }}>Загрузка данных...</div>}
+
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={setCurrentPage}
+      />
 
       {confirmModal.show && (
         <ConfirmModal
-          message="Удалить запись?"
+          message="Вы действительно хотите удалить запись об участии?"
           onConfirm={handleDelete}
           onCancel={() => setConfirmModal({ show: false, id: null })}
         />
