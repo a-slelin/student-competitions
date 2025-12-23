@@ -8,7 +8,7 @@ export default function ParticipationsTable({
   onDelete,
   onStudentClick,
   onCompetitionClick,
-  loading, 
+  loading,
 }) {
   function handleSort(column) {
     if (sort.column === column) {
@@ -30,11 +30,9 @@ export default function ParticipationsTable({
         : ""
     }`;
 
-
   if (loading) {
     return <div className="loading">Загрузка...</div>;
   }
-
 
   if (!participations.length) {
     return <div className="empty-state">Нет записей</div>;
@@ -48,10 +46,7 @@ export default function ParticipationsTable({
             <th className={thClass("student")} onClick={() => handleSort("student")}>
               Студент
             </th>
-            <th
-              className={thClass("competition")}
-              onClick={() => handleSort("competition")}
-            >
+            <th className={thClass("competition")} onClick={() => handleSort("competition")}>
               Соревнование
             </th>
             <th className={thClass("level")} onClick={() => handleSort("level")}>
@@ -75,10 +70,10 @@ export default function ParticipationsTable({
 
         <tbody>
           {participations.map((p) => {
-            const isBlocked = p.IsBlocked;
+            const isBlocked = p.IsBlocked === true;
 
             return (
-              <tr key={p.id}>
+              <tr key={p.id} className={isBlocked ? "row-blocked" : ""}>
                 <td
                   className="clickable"
                   onClick={() => onStudentClick(p.studentId)}
@@ -102,12 +97,16 @@ export default function ParticipationsTable({
                       className={`btn btn-secondary${isBlocked ? " blocked" : ""}`}
                       disabled={isBlocked}
                       onClick={() => !isBlocked && onEdit(p)}
+                      title={isBlocked ? "Запись заблокирована" : ""}
                     >
                       Редактировать
                     </button>
+
                     <button
-                      className="btn btn-danger"
-                      onClick={() => onDelete(p.id)}
+                      className={`btn btn-danger${isBlocked ? " blocked" : ""}`}
+                      disabled={isBlocked}
+                      onClick={() => !isBlocked && onDelete(p.id)}
+                      title={isBlocked ? "Запись заблокирована" : ""}
                     >
                       Удалить
                     </button>

@@ -52,7 +52,6 @@ button {
     min-height: calc(100vh - 60px);
 }
 
-/* --- Sidebar (Светлый стиль) --- */
 .sidebar {
     width: 250px;
     background-color: #ffffff; 
@@ -556,4 +555,14 @@ tbody tr:hover {
         width: 95%;
         margin: 10px;
     }
+}
+.row-blocked {
+  background-color: #fafafa;
+}
+
+.btn.blocked,
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
 }
