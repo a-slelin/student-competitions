@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react"; 
 import { useNavigate } from "react-router-dom";
 import ParticipationsTable from "../components/ParticipationsTable.jsx";
 import Pagination from "../components/Pagination.jsx";
@@ -151,7 +151,6 @@ export default function ParticipationsPage() {
       <div className="content-header">
         <h2>Участия</h2>
         <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
-          {/* Кнопка открытия расширенного поиска */}
           <button 
             className="btn btn-secondary" 
             onClick={() => setSearchModal(true)}
@@ -159,7 +158,6 @@ export default function ParticipationsPage() {
             🔍 Расширенный поиск
           </button>
 
-          {/* Очистка фильтров */}
           {advancedFilters.length > 0 && (
             <button 
               className="btn btn-secondary" 
@@ -169,7 +167,6 @@ export default function ParticipationsPage() {
             </button>
           )}
 
-          {/* Новое участие */}
           <button 
             className="btn btn-primary" 
             onClick={() => setFormModal({ show: true, participation: null })}

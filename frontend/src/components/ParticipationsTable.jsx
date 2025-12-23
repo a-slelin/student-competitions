@@ -10,6 +10,9 @@ export default function ParticipationsTable({
   onCompetitionClick,
   loading,
 }) {
+  const STUDENT_SORT_FIELD = "student.surname";
+  const COMPETITION_SORT_FIELD = "competition.name";
+
   function handleSort(column) {
     if (sort.column === column) {
       setSort({
@@ -30,23 +33,24 @@ export default function ParticipationsTable({
         : ""
     }`;
 
-  if (loading) {
-    return <div className="loading">Загрузка...</div>;
-  }
-
-  if (!participations.length) {
-    return <div className="empty-state">Нет записей</div>;
-  }
+  if (loading) return <div className="loading">Загрузка...</div>;
+  if (!participations.length) return <div className="empty-state">Нет записей</div>;
 
   return (
     <div className="table-container">
       <table>
         <thead>
           <tr>
-            <th className={thClass("student")} onClick={() => handleSort("student")}>
+            <th
+              className={thClass(STUDENT_SORT_FIELD)}
+              onClick={() => handleSort(STUDENT_SORT_FIELD)}
+            >
               Студент
             </th>
-            <th className={thClass("competition")} onClick={() => handleSort("competition")}>
+            <th
+              className={thClass(COMPETITION_SORT_FIELD)}
+              onClick={() => handleSort(COMPETITION_SORT_FIELD)}
+            >
               Соревнование
             </th>
             <th className={thClass("level")} onClick={() => handleSort("level")}>
