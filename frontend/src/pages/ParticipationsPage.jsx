@@ -1,26 +1,26 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import ParticipationsTable from "../components/ParticipationsTable.jsx";
-import SearchBar from "../components/SearchBar.jsx";
 import Pagination from "../components/Pagination.jsx";
 import ConfirmModal from "../components/ConfirmModal.jsx";
 import ParticipationForm from "../components/ParticipationForm.jsx";
+import AdvancedSearchModal from "../components/AdvancedSearchModal.jsx";
 
 export default function ParticipationsPage() {
   const [participations, setParticipations] = useState([]);
   const [currentPage, setCurrentPage] = useState(0);
   const [pageSize] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
-  const [search, setSearch] = useState("");
   const [sort, setSort] = useState({ column: null, direction: "asc" });
+  const [advancedFilters, setAdvancedFilters] = useState([]);
 
   const [confirmModal, setConfirmModal] = useState({ show: false, id: null });
   const [formModal, setFormModal] = useState({ show: false, participation: null });
+  const [searchModal, setSearchModal] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
 
-  // Функция очистки URL (если сервер шлет абсолютные ссылки)
   const normalizeUrl = (url) => {
     if (!url) return null;
     try {
@@ -31,7 +31,6 @@ export default function ParticipationsPage() {
     }
   };
 
-  // Функция "обогащения" данных: превращает ссылки в имена
   const enrichParticipations = async (content) => {
     if (!content || content.length === 0) return [];
 
@@ -73,12 +72,15 @@ export default function ParticipationsPage() {
       const params = new URLSearchParams({ page: currentPage, size: pageSize });
       if (sort.column) params.append("sort", `${sort.column},${sort.direction.toUpperCase()}`);
 
+      let filters = [];
+      if (advancedFilters.length > 0) {
+        filters = [...filters, ...advancedFilters];
+      }
+
       const res = await fetch(`${url}?${params}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          filters: search ? [{ field: "description", operation: "like", value: search }] : [],
-        }),
+        body: JSON.stringify({ filters: filters }),
       });
 
       if (!res.ok) throw new Error("Ошибка загрузки");
@@ -96,9 +98,8 @@ export default function ParticipationsPage() {
 
   useEffect(() => {
     loadParticipations();
-  }, [currentPage, search, sort]);
+  }, [currentPage, sort, JSON.stringify(advancedFilters)]);
 
-  // Сохранение (POST/PATCH)
   const handleSave = async (payload) => {
     try {
       const isEdit = !!payload.id;
@@ -123,7 +124,6 @@ export default function ParticipationsPage() {
     }
   };
 
-  // Удаление
   const handleDelete = async () => {
     try {
       const res = await fetch(`/api/participations/${confirmModal.id}`, { method: "DELETE" });
@@ -135,17 +135,48 @@ export default function ParticipationsPage() {
     }
   };
 
+  const handleAdvancedSearch = (filters) => {
+    setAdvancedFilters(filters);
+    setCurrentPage(0);
+    setSearchModal(false);
+  };
+
+  const handleClearFilters = () => {
+    setAdvancedFilters([]);
+    setCurrentPage(0);
+  };
+
   return (
     <div className="page active">
       <div className="content-header">
         <h2>Участия</h2>
-        <SearchBar
-          search={search}
-          setSearch={setSearch}
-          placeholder="Поиск по ФИО, факультету, уровню, соревнованию или году"
-          buttonLabel="Новое участие"
-          onButtonClick={() => setFormModal({ show: true, participation: null })}
-        />
+        <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+          {/* Кнопка открытия расширенного поиска */}
+          <button 
+            className="btn btn-secondary" 
+            onClick={() => setSearchModal(true)}
+          >
+            🔍 Расширенный поиск
+          </button>
+
+          {/* Очистка фильтров */}
+          {advancedFilters.length > 0 && (
+            <button 
+              className="btn btn-secondary" 
+              onClick={handleClearFilters}
+            >
+              ✕ Очистить фильтры ({advancedFilters.length})
+            </button>
+          )}
+
+          {/* Новое участие */}
+          <button 
+            className="btn btn-primary" 
+            onClick={() => setFormModal({ show: true, participation: null })}
+          >
+            Новое участие
+          </button>
+        </div>
       </div>
 
       <ParticipationsTable
@@ -156,6 +187,7 @@ export default function ParticipationsPage() {
         onDelete={(id) => setConfirmModal({ show: true, id })}
         onStudentClick={(studentId) => navigate(`/students/${studentId}`)}
         onCompetitionClick={(competitionId) => navigate(`/competitions/${competitionId}`)}
+        loading={loading}
       />
 
       {loading && <div style={{ marginTop: 10, color: '#888' }}>Загрузка данных...</div>}
@@ -179,6 +211,13 @@ export default function ParticipationsPage() {
           participation={formModal.participation}
           onSave={handleSave}
           onCancel={() => setFormModal({ show: false, participation: null })}
+        />
+      )}
+
+      {searchModal && (
+        <AdvancedSearchModal
+          onSearch={handleAdvancedSearch}
+          onCancel={() => setSearchModal(false)}
         />
       )}
     </div>

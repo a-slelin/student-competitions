@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 
 export default function ParticipationForm({ participation, onSave, onCancel }) {
   const [form, setForm] = useState({
     studentId: "",
+    studentText: "",
     competitionId: "",
+    competitionText: "",
     levelCode: "",
     resultCode: "",
     year: new Date().getFullYear(),
@@ -17,15 +19,13 @@ export default function ParticipationForm({ participation, onSave, onCancel }) {
   const [levels, setLevels] = useState([]);
   const [results, setResults] = useState([]);
   const [errors, setErrors] = useState({});
+  const [suggestions, setSuggestions] = useState({ student: [], competition: [] });
+  const [activeSuggestion, setActiveSuggestion] = useState(null);
+
+  const studentRef = useRef(null);
+  const competitionRef = useRef(null);
 
   const isBlocked = participation?.isBlocked || false;
-
-  const extractId = (val) => {
-    if (!val) return "";
-    if (typeof val === "string") return val.includes("/") ? val.split("/").pop() : val;
-    if (typeof val === "object" && val.id) return val.id;
-    return "";
-  };
 
   useEffect(() => {
     const fetchData = async (url) => {
@@ -45,7 +45,7 @@ export default function ParticipationForm({ participation, onSave, onCancel }) {
         fetchData("/api/students?size=1000"),
         fetchData("/api/competitions?size=1000"),
         fetchData("/api/levels"),
-        fetchData("/api/results")
+        fetchData("/api/results"),
       ]);
       setStudents(s);
       setCompetitions(c);
@@ -56,20 +56,60 @@ export default function ParticipationForm({ participation, onSave, onCancel }) {
     loadAllDicts();
   }, []);
 
+  // Заполняем форму при редактировании
   useEffect(() => {
     if (participation) {
       setForm({
-        studentId: extractId(participation.student),
-        competitionId: extractId(participation.competition),
-        levelCode: extractId(participation.level),
-        resultCode: extractId(participation.result),
-        year: participation.year || "",
+        studentId: participation.studentId || participation.student?.id || "",
+        studentText: participation.studentName || (participation.student ? `${participation.student.surname} ${participation.student.name}` : ""),
+        competitionId: participation.competitionId || participation.competition?.id || "",
+        competitionText: participation.competitionName || (participation.competition ? participation.competition.name : ""),
+        levelCode: participation.levelCode || participation.level?.code || "",
+        resultCode: participation.resultCode || participation.result?.code || "",
+        year: participation.year || new Date().getFullYear(),
         points: participation.points ?? "",
         supervisor: participation.supervisor || "",
         description: participation.description || "",
       });
     }
   }, [participation]);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (
+        studentRef.current && !studentRef.current.contains(e.target) &&
+        competitionRef.current && !competitionRef.current.contains(e.target)
+      ) {
+        setActiveSuggestion(null);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleInput = (field, value, list, keyId, keyName) => {
+    setForm({ ...form, [`${field}Text`]: value, [`${field}Id`]: "" });
+    if (value.length > 0) {
+      const filtered = list.filter(item =>
+        `${item[keyName]}`.toLowerCase().includes(value.toLowerCase())
+      );
+      setSuggestions({ ...suggestions, [field]: filtered });
+      setActiveSuggestion(field);
+    } else {
+      setSuggestions({ ...suggestions, [field]: [] });
+      setActiveSuggestion(null);
+    }
+  };
+
+  const selectItem = (field, item, keyId, keyName) => {
+    setForm({
+      ...form,
+      [`${field}Id`]: item[keyId],
+      [`${field}Text`]: `${item.surname || ""} ${item.name || item.name || ""}`.trim() || item[keyName],
+    });
+    setSuggestions({ ...suggestions, [field]: [] });
+    setActiveSuggestion(null);
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -94,6 +134,33 @@ export default function ParticipationForm({ participation, onSave, onCancel }) {
     onSave(payload);
   };
 
+  const inputStyle = {
+    width: "100%",
+    padding: "8px 10px",
+    border: "1px solid #ccc",
+    borderRadius: "4px",
+    fontSize: "0.95rem",
+    boxSizing: "border-box",
+  };
+
+  const suggestionBoxStyle = {
+    position: "absolute",
+    top: "100%",
+    left: 0,
+    right: 0,
+    maxHeight: "200px",
+    overflowY: "auto",
+    backgroundColor: "#fff",
+    border: "1px solid #ccc",
+    borderTop: "none",
+    zIndex: 1000,
+  };
+
+  const suggestionItemStyle = {
+    padding: "8px 10px",
+    cursor: "pointer",
+  };
+
   return (
     <div className="modal-overlay">
       <div className="modal-window large">
@@ -103,40 +170,61 @@ export default function ParticipationForm({ participation, onSave, onCancel }) {
         </div>
 
         <form className="modal-body" onSubmit={handleSubmit}>
-          {errors.general && <p style={{ color: "red", fontSize: "0.9rem" }}>{errors.general}</p>}
+          {errors.general && <p style={{ color: "red" }}>{errors.general}</p>}
 
-          <div className="form-row">
+          {/* Студент */}
+          <div className="form-row" ref={studentRef} style={{ position: "relative" }}>
             <label>Студент*</label>
-            <select
-              value={form.studentId}
-              onChange={(e) => setForm({ ...form, studentId: e.target.value })}
+            <input
+              type="text"
+              value={form.studentText}
+              onChange={(e) => handleInput("student", e.target.value, students, "id", "surname")}
               disabled={isBlocked}
               required
-            >
-              <option value="">-- Выберите студента --</option>
-              {students.map((s) => (
-                <option key={s.id} value={s.id}>
-                  {s.surname} {s.name} {s.middleName || ""}
-                </option>
-              ))}
-            </select>
+              style={inputStyle}
+            />
+            {activeSuggestion === "student" && suggestions.student.length > 0 && (
+              <div style={suggestionBoxStyle}>
+                {suggestions.student.map((s) => (
+                  <div
+                    key={s.id}
+                    style={suggestionItemStyle}
+                    onClick={() => selectItem("student", s, "id", "surname")}
+                  >
+                    {s.surname} {s.name} {s.middleName || ""}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
-          <div className="form-row">
+          {/* Соревнование */}
+          <div className="form-row" ref={competitionRef} style={{ position: "relative" }}>
             <label>Соревнование*</label>
-            <select
-              value={form.competitionId}
-              onChange={(e) => setForm({ ...form, competitionId: e.target.value })}
+            <input
+              type="text"
+              value={form.competitionText}
+              onChange={(e) => handleInput("competition", e.target.value, competitions, "id", "name")}
               disabled={isBlocked}
               required
-            >
-              <option value="">-- Выберите соревнование --</option>
-              {competitions.map((c) => (
-                <option key={c.id} value={c.id}>{c.name}</option>
-              ))}
-            </select>
+              style={inputStyle}
+            />
+            {activeSuggestion === "competition" && suggestions.competition.length > 0 && (
+              <div style={suggestionBoxStyle}>
+                {suggestions.competition.map((c) => (
+                  <div
+                    key={c.id}
+                    style={suggestionItemStyle}
+                    onClick={() => selectItem("competition", c, "id", "name")}
+                  >
+                    {c.name}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
+          {/* Уровень и Результат */}
           <div className="form-row two-cols">
             <div>
               <label>Уровень</label>
@@ -151,7 +239,6 @@ export default function ParticipationForm({ participation, onSave, onCancel }) {
                 ))}
               </select>
             </div>
-
             <div>
               <label>Результат</label>
               <select
@@ -167,6 +254,7 @@ export default function ParticipationForm({ participation, onSave, onCancel }) {
             </div>
           </div>
 
+          {/* Год, Баллы, Руководитель */}
           <div className="form-row three-cols">
             <div>
               <label>Год</label>
@@ -197,6 +285,7 @@ export default function ParticipationForm({ participation, onSave, onCancel }) {
             </div>
           </div>
 
+          {/* Описание */}
           <div className="form-row">
             <label>Описание</label>
             <textarea
@@ -207,9 +296,7 @@ export default function ParticipationForm({ participation, onSave, onCancel }) {
           </div>
 
           <div className="modal-footer">
-            <button type="button" className="btn btn-secondary" onClick={onCancel}>
-              Отмена
-            </button>
+            <button type="button" className="btn btn-secondary" onClick={onCancel}>Отмена</button>
             {!isBlocked && <button type="submit" className="btn btn-primary">Сохранить</button>}
           </div>
         </form>
