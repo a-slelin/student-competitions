@@ -120,7 +120,9 @@ public class Participation extends Audit implements BaseEntity {
     // Callbacks
 
     @PrePersist
-    private void prePersist() {
+    @Override
+    protected void prePersist() {
+        super.prePersist();
         if (isBlocked == null) {
             isBlocked = Boolean.FALSE;
         }
