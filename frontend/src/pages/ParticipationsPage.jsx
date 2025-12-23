@@ -38,16 +38,19 @@ export default function ParticipationsPage() {
       content.map(async (item) => {
         try {
           const [studentData, compData, levelData, resultData] = await Promise.all([
-            item.student ? fetch(normalizeUrl(item.student)).then((r) => r.json()).catch(() => null) : null,
-            item.competition ? fetch(normalizeUrl(item.competition)).then((r) => r.json()).catch(() => null) : null,
-            item.level ? fetch(normalizeUrl(item.level)).then((r) => r.json()).catch(() => null) : null,
-            item.result ? fetch(normalizeUrl(item.result)).then((r) => r.json()).catch(() => null) : null,
+            item.student ? fetch(normalizeUrl(item.student)).then(r => r.json()).catch(() => null) : null,
+            item.competition ? fetch(normalizeUrl(item.competition)).then(r => r.json()).catch(() => null) : null,
+            item.level ? fetch(normalizeUrl(item.level)).then(r => r.json()).catch(() => null) : null,
+            item.result ? fetch(normalizeUrl(item.result)).then(r => r.json()).catch(() => null) : null,
           ]);
 
           return {
             ...item,
+            student: studentData || null,
+            competition: compData || null,
+            level: levelData || null,
+            result: resultData || null,
             studentName: studentData ? `${studentData.surname} ${studentData.name} ${studentData.middleName || ""}`.trim() : "Неизвестно",
-            faculty: studentData?.faculty || "-",
             competitionName: compData?.name || "Неизвестно",
             levelName: levelData?.name || "-",
             resultName: resultData?.name || "-",
@@ -72,15 +75,12 @@ export default function ParticipationsPage() {
       const params = new URLSearchParams({ page: currentPage, size: pageSize });
       if (sort.column) params.append("sort", `${sort.column},${sort.direction.toUpperCase()}`);
 
-      let filters = [];
-      if (advancedFilters.length > 0) {
-        filters = [...filters, ...advancedFilters];
-      }
+      const filters = advancedFilters.length > 0 ? [...advancedFilters] : [];
 
       const res = await fetch(`${url}?${params}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ filters: filters }),
+        body: JSON.stringify({ filters }),
       });
 
       if (!res.ok) throw new Error("Ошибка загрузки");
@@ -107,7 +107,7 @@ export default function ParticipationsPage() {
       const method = isEdit ? "PATCH" : "POST";
 
       const res = await fetch(url, {
-        method: method,
+        method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
@@ -151,26 +151,13 @@ export default function ParticipationsPage() {
       <div className="content-header">
         <h2>Участия</h2>
         <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
-          <button 
-            className="btn btn-secondary" 
-            onClick={() => setSearchModal(true)}
-          >
-            🔍 Расширенный поиск
-          </button>
-
+          <button className="btn btn-secondary" onClick={() => setSearchModal(true)}>🔍 Расширенный поиск</button>
           {advancedFilters.length > 0 && (
-            <button 
-              className="btn btn-secondary" 
-              onClick={handleClearFilters}
-            >
+            <button className="btn btn-secondary" onClick={handleClearFilters}>
               ✕ Очистить фильтры ({advancedFilters.length})
             </button>
           )}
-
-          <button 
-            className="btn btn-primary" 
-            onClick={() => setFormModal({ show: true, participation: null })}
-          >
+          <button className="btn btn-primary" onClick={() => setFormModal({ show: true, participation: null })}>
             Новое участие
           </button>
         </div>
@@ -189,11 +176,7 @@ export default function ParticipationsPage() {
 
       {loading && <div style={{ marginTop: 10, color: '#888' }}>Загрузка данных...</div>}
 
-      <Pagination
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onPageChange={setCurrentPage}
-      />
+      <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
 
       {confirmModal.show && (
         <ConfirmModal

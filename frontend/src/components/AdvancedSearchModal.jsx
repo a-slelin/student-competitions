@@ -33,6 +33,7 @@ export default function AdvancedSearchModal({ onSearch, onCancel }) {
   const levelRef = useRef(null);
   const resultRef = useRef(null);
 
+  // Загрузка справочников
   useEffect(() => {
     const fetchData = async (url) => {
       try {
@@ -51,7 +52,7 @@ export default function AdvancedSearchModal({ onSearch, onCancel }) {
         fetchData("/api/students?size=1000"),
         fetchData("/api/competitions?size=1000"),
         fetchData("/api/levels"),
-        fetchData("/api/results")
+        fetchData("/api/results"),
       ]);
       setStudents(s);
       setCompetitions(c);
@@ -62,6 +63,7 @@ export default function AdvancedSearchModal({ onSearch, onCancel }) {
     loadAllDicts();
   }, []);
 
+  // Закрытие подсказок при клике вне
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (
@@ -78,12 +80,25 @@ export default function AdvancedSearchModal({ onSearch, onCancel }) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleInput = (field, value, list, keyId, keyName) => {
+  // Обработка ввода с автоподсказками
+  const handleInput = (field, value, list, keyId) => {
     setForm({ ...form, [`${field}Text`]: value, [`${field}Id`]: "" });
     if (value.length > 0) {
-      const filtered = list.filter(item =>
-        `${item[keyName]}`.toLowerCase().includes(value.toLowerCase())
-      );
+      let filtered = [];
+      if (field === "student") {
+        filtered = list.filter(item =>
+          `${item.surname} ${item.name} ${item.middleName || ""} (${item.cardNumber})`
+            .toLowerCase().includes(value.toLowerCase())
+        );
+      } else if (field === "competition") {
+        filtered = list.filter(item =>
+          item.name.toLowerCase().includes(value.toLowerCase())
+        );
+      } else {
+        filtered = list.filter(item =>
+          item.name.toLowerCase().includes(value.toLowerCase())
+        );
+      }
       setSuggestions({ ...suggestions, [field]: filtered });
       setActiveSuggestion(field);
     } else {
@@ -92,16 +107,26 @@ export default function AdvancedSearchModal({ onSearch, onCancel }) {
     }
   };
 
-  const selectItem = (field, item, keyId, keyName) => {
-    setForm({
-      ...form,
-      [`${field}Id`]: item[keyId] || item.code,
-      [`${field}Text`]: item[keyName] || item.name
-    });
+  // Выбор из подсказки
+  const selectItem = (field, item, keyId) => {
+    if (field === "student") {
+      setForm({
+        ...form,
+        [`${field}Id`]: item[keyId],
+        [`${field}Text`]: `${item.surname} ${item.name} ${item.middleName || ""} (${item.cardNumber})`,
+      });
+    } else {
+      setForm({
+        ...form,
+        [`${field}Id`]: item[keyId] || item.code,
+        [`${field}Text`]: item.name,
+      });
+    }
     setSuggestions({ ...suggestions, [field]: [] });
     setActiveSuggestion(null);
   };
 
+  // Формирование фильтров для поиска
   const handleSubmit = (e) => {
     e.preventDefault();
     const filters = [];
@@ -133,6 +158,7 @@ export default function AdvancedSearchModal({ onSearch, onCancel }) {
     onSearch(filters);
   };
 
+  // Сброс формы
   const handleReset = () => {
     setForm({
       studentId: "", studentText: "",
@@ -205,11 +231,26 @@ export default function AdvancedSearchModal({ onSearch, onCancel }) {
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px" }}>
             <div ref={studentRef} style={{ position: "relative" }}>
               <label style={{ marginBottom: "6px", fontWeight: 500 }}>Студент</label>
-              <input type="text" placeholder="Введите фамилию или имя" value={form.studentText} onChange={(e) => handleInput("student", e.target.value, students, "id", "surname")} onFocus={() => form.studentText && setActiveSuggestion("student")} style={inputStyle} />
+              <input
+                type="text"
+                placeholder="Введите фамилию или имя"
+                value={form.studentText}
+                onChange={(e) => handleInput("student", e.target.value, students, "id")}
+                onFocus={() => form.studentText && setActiveSuggestion("student")}
+                style={inputStyle}
+              />
               {activeSuggestion === "student" && suggestions.student.length > 0 && (
                 <div style={suggestionBoxStyle}>
                   {suggestions.student.map((s) => (
-                    <div key={s.id} style={suggestionItemStyle} onClick={() => selectItem("student", s, "id", "surname")} onMouseEnter={(e)=> e.target.style.backgroundColor="#f5f5f5"} onMouseLeave={(e)=> e.target.style.backgroundColor="#fff"}>{s.surname} {s.name}</div>
+                    <div
+                      key={s.id}
+                      style={suggestionItemStyle}
+                      onClick={() => selectItem("student", s, "id")}
+                      onMouseEnter={(e)=> e.target.style.backgroundColor="#f5f5f5"}
+                      onMouseLeave={(e)=> e.target.style.backgroundColor="#fff"}
+                    >
+                      {s.surname} {s.name} {s.middleName || ""} ({s.cardNumber})
+                    </div>
                   ))}
                 </div>
               )}
@@ -217,18 +258,32 @@ export default function AdvancedSearchModal({ onSearch, onCancel }) {
 
             <div ref={competitionRef} style={{ position: "relative" }}>
               <label style={{ marginBottom: "6px", fontWeight: 500 }}>Соревнование</label>
-              <input type="text" placeholder="Введите название соревнования" value={form.competitionText} onChange={(e) => handleInput("competition", e.target.value, competitions, "id", "name")} onFocus={() => form.competitionText && setActiveSuggestion("competition")} style={inputStyle} />
+              <input
+                type="text"
+                placeholder="Введите название соревнования"
+                value={form.competitionText}
+                onChange={(e) => handleInput("competition", e.target.value, competitions, "id")}
+                onFocus={() => form.competitionText && setActiveSuggestion("competition")}
+                style={inputStyle}
+              />
               {activeSuggestion === "competition" && suggestions.competition.length > 0 && (
                 <div style={suggestionBoxStyle}>
                   {suggestions.competition.map((c) => (
-                    <div key={c.id} style={suggestionItemStyle} onClick={() => selectItem("competition", c, "id", "name")} onMouseEnter={(e)=> e.target.style.backgroundColor="#f5f5f5"} onMouseLeave={(e)=> e.target.style.backgroundColor="#fff"}>{c.name}</div>
+                    <div
+                      key={c.id}
+                      style={suggestionItemStyle}
+                      onClick={() => selectItem("competition", c, "id")}
+                      onMouseEnter={(e)=> e.target.style.backgroundColor="#f5f5f5"}
+                      onMouseLeave={(e)=> e.target.style.backgroundColor="#fff"}
+                    >
+                      {c.name}
+                    </div>
                   ))}
                 </div>
               )}
             </div>
-          </div>
 
-          {/* Уровень и результат */}
+          </div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px" }}>
             <div ref={levelRef} style={{ position: "relative" }}>
               <label style={{ marginBottom: "6px", fontWeight: 500 }}>Уровень</label>
@@ -253,9 +308,8 @@ export default function AdvancedSearchModal({ onSearch, onCancel }) {
                 </div>
               )}
             </div>
-          </div>
 
-          {/* Год */}
+          </div>
           <div>
             <label style={{ marginBottom: "6px", fontWeight: 500 }}>Год</label>
             <div style={{ display: "flex", gap: "20px", marginBottom: "10px" }}>
@@ -277,7 +331,6 @@ export default function AdvancedSearchModal({ onSearch, onCancel }) {
             )}
           </div>
 
-          {/* Баллы */}
           <div>
             <label style={{ marginBottom:"6px", fontWeight:500 }}>Баллы</label>
             <div style={{ display:"flex", gap:"20px", marginBottom:"10px"}}>
@@ -295,13 +348,11 @@ export default function AdvancedSearchModal({ onSearch, onCancel }) {
             )}
           </div>
 
-          {/* Руководитель */}
           <div>
             <label style={{ marginBottom:"6px", fontWeight:500 }}>Руководитель</label>
             <input type="text" placeholder="Введите имя руководителя" value={form.supervisor} onChange={(e)=>setForm({...form, supervisor:e.target.value})} style={inputStyle}/>
           </div>
 
-          {/* Кнопки */}
           <div style={{ display:"flex", justifyContent:"flex-end", gap:"10px", marginTop:"20px" }}>
             <button type="button" onClick={handleReset} className="btn btn-secondary" style={{ padding:"10px 20px", fontWeight:500 }}>Сбросить</button>
             <button type="submit" className="btn btn-primary" style={{ padding:"10px 20px", fontWeight:500 }}>Поиск</button>
