@@ -6,11 +6,11 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
 
-import java.time.LocalDateTime;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class FilterUtil {
@@ -40,8 +40,18 @@ public final class FilterUtil {
 
         try {
             return switch (operation) {
-                case EQ -> cb.equal(path, value);
-                case NEQ -> cb.notEqual(path, value);
+                case EQ -> {
+                    if (path.getJavaType() == UUID.class) {
+                        value = UUID.fromString((String) value);
+                    }
+                    yield cb.equal(path, value);
+                }
+                case NEQ -> {
+                    if (path.getJavaType() == UUID.class) {
+                        value = UUID.fromString((String) value);
+                    }
+                    yield cb.notEqual(path, value);
+                }
 
                 case IS_NULL -> cb.isNull(path);
                 case IS_NOT_NULL -> cb.isNotNull(path);
@@ -167,7 +177,7 @@ public final class FilterUtil {
         } catch (FilterException e) {
             throw e;
         } catch (Exception e) {
-            throw new FilterException();
+            throw e;
         }
     }
 
