@@ -23,10 +23,8 @@ export default function App() {
         </header>
 
         <div className="container">
-          {/* Sidebar */}
           <Sidebar />
 
-          {/* Контент с маршрутизацией */}
           <main className="content">
             <Routes>
               <Route path="/" element={<Navigate to="/students" />} />
@@ -41,6 +39,7 @@ export default function App() {
             </Routes>
           </main>
         </div>
+        <footer className="footer" />
       </div>
     </Router>
   );

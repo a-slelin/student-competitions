@@ -557,12 +557,28 @@ tbody tr:hover {
     }
 }
 .row-blocked {
-  background-color: #fafafa;
+    background-color: #fafafa;
 }
 
 .btn.blocked,
 .btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  pointer-events: none;
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.app-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.container {
+    flex: 1;
+}
+
+.footer {
+    height: 70px; 
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.08);
 }
