@@ -6,10 +6,11 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class FilterUtil {
@@ -39,16 +40,26 @@ public final class FilterUtil {
 
         try {
             return switch (operation) {
-                case EQ -> cb.equal(path, value);
-                case NEQ -> cb.notEqual(path, value);
+                case EQ -> {
+                    if (path.getJavaType() == UUID.class) {
+                        value = UUID.fromString((String) value);
+                    }
+                    yield cb.equal(path, value);
+                }
+                case NEQ -> {
+                    if (path.getJavaType() == UUID.class) {
+                        value = UUID.fromString((String) value);
+                    }
+                    yield cb.notEqual(path, value);
+                }
 
                 case IS_NULL -> cb.isNull(path);
                 case IS_NOT_NULL -> cb.isNotNull(path);
 
                 case GT, GE, LT, LE -> {
-                    Expression<Number> expression = pathToType(path, Number.class);
+                    Expression<Integer> expression = pathToType(path, Integer.class);
 
-                    Number number = valueToType(value, Number.class);
+                    Integer number = valueToType(value, Integer.class);
 
                     yield switch (operation) {
                         case GT -> cb.gt(expression, number);
@@ -65,12 +76,12 @@ public final class FilterUtil {
                     String str = valueToType(value, String.class);
 
                     yield switch (operation) {
-                        case LIKE -> cb.like(expression, "%" + str + "%");
-                        case NOT_LIKE -> cb.notLike(expression, "%" + str + "%");
-                        case STARTS_WITH -> cb.like(expression, str + "%");
-                        case NOT_STARTS_WITH -> cb.notLike(expression, str + "%");
-                        case ENDS_WITH -> cb.like(expression, "%" + str);
-                        case NOT_ENDS_WITH -> cb.notLike(expression, "%" + str);
+                        case LIKE -> cb.like(cb.lower(expression), "%" + str.toLowerCase() + "%");
+                        case NOT_LIKE -> cb.notLike(cb.lower(expression), "%" + str.toLowerCase() + "%");
+                        case STARTS_WITH -> cb.like(cb.lower(expression), str.toLowerCase() + "%");
+                        case NOT_STARTS_WITH -> cb.notLike(cb.lower(expression), str.toLowerCase() + "%");
+                        case ENDS_WITH -> cb.like(cb.lower(expression), "%" + str.toLowerCase());
+                        case NOT_ENDS_WITH -> cb.notLike(cb.lower(expression), "%" + str.toLowerCase());
                         default -> throw new IllegalArgumentException("Unexpected value");
                     };
                 }
@@ -106,10 +117,10 @@ public final class FilterUtil {
                 }
 
                 case BETWEEN, NOT_BETWEEN -> {
-                    Expression<Comparable> expression = pathToType(path, Comparable.class);
+                    Expression<Integer> expression = pathToType(path, Integer.class);
 
-                    Comparable from = valueToType(value, Comparable.class);
-                    Comparable to = valueToType(value2, Comparable.class);
+                    Integer from = valueToType(value, Integer.class);
+                    Integer to = valueToType(value2, Integer.class);
 
                     yield switch (operation) {
                         case BETWEEN -> cb.between(expression, from, to);
@@ -119,9 +130,10 @@ public final class FilterUtil {
                 }
 
                 case BEFORE, AFTER -> {
-                    Expression<LocalDateTime> expression = pathToType(path, LocalDateTime.class);
+                    Expression<LocalDate> expression = pathToType(path, LocalDate.class);
 
-                    LocalDateTime date = valueToType(value, LocalDateTime.class);
+
+                    LocalDate date = valueToType(value, LocalDate.class);
 
                     yield switch (operation) {
                         case BEFORE -> cb.lessThan(expression, date);
@@ -165,7 +177,7 @@ public final class FilterUtil {
         } catch (FilterException e) {
             throw e;
         } catch (Exception e) {
-            throw new FilterException();
+            throw e;
         }
     }
 

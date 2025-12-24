@@ -35,13 +35,13 @@ public class Audit {
     // Callbacks
 
     @PrePersist
-    private void prePersist() {
+    protected void prePersist() {
         this.createdAt = LocalDateTime.now();
         preUpdate();
     }
 
     @PreUpdate
-    private void preUpdate() {
+    protected void preUpdate() {
         this.updatedAt = LocalDateTime.now();
     }
 

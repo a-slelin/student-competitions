@@ -73,7 +73,7 @@ public class StudentMapper implements Mapper<Student, ReadStudentDto, SaveStuden
         }
 
         if (dto.studyGroup() != null) {
-            entity.setDepartment(dto.department());
+            entity.setStudyGroup(dto.studyGroup());
         }
 
         if (dto.email() != null) {

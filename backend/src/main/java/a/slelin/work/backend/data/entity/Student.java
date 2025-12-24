@@ -74,7 +74,7 @@ public class Student extends Audit implements BaseEntity {
     @Size(min = 3, max = 20)
     private String phone;
 
-    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "student", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<Participation> participations = new ArrayList<>();
 
     // Constructors

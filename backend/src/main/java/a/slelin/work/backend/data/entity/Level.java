@@ -42,7 +42,7 @@ public class Level implements BaseEntity {
     @Min(0)
     private Integer sortOrder;
 
-    @OneToMany(mappedBy = "level", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "level", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<Participation> participations = new ArrayList<>();
 
     // Methods

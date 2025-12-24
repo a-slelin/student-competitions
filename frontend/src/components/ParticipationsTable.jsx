@@ -1,0 +1,126 @@
+import React from "react";
+
+export default function ParticipationsTable({
+  participations,
+  sort,
+  setSort,
+  onEdit,
+  onDelete,
+  onStudentClick,
+  onCompetitionClick,
+  loading,
+}) {
+  const STUDENT_SORT_FIELD = "student.surname";
+  const COMPETITION_SORT_FIELD = "competition.name";
+
+  function handleSort(column) {
+    if (sort.column === column) {
+      setSort({
+        column,
+        direction: sort.direction === "asc" ? "desc" : "asc",
+      });
+    } else {
+      setSort({ column, direction: "asc" });
+    }
+  }
+
+  const thClass = (col) =>
+    `sortable ${
+      sort.column === col
+        ? sort.direction === "asc"
+          ? "sort-asc"
+          : "sort-desc"
+        : ""
+    }`;
+
+  if (loading) return <div className="loading">Загрузка...</div>;
+  if (!participations.length) return <div className="empty-state">Нет записей</div>;
+
+  return (
+    <div className="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th
+              className={thClass(STUDENT_SORT_FIELD)}
+              onClick={() => handleSort(STUDENT_SORT_FIELD)}
+            >
+              Студент
+            </th>
+            <th
+              className={thClass(COMPETITION_SORT_FIELD)}
+              onClick={() => handleSort(COMPETITION_SORT_FIELD)}
+            >
+              Соревнование
+            </th>
+            <th className={thClass("level")} onClick={() => handleSort("level")}>
+              Уровень
+            </th>
+            <th className={thClass("result")} onClick={() => handleSort("result")}>
+              Результат
+            </th>
+            <th className={thClass("year")} onClick={() => handleSort("year")}>
+              Год
+            </th>
+            <th className={thClass("points")} onClick={() => handleSort("points")}>
+              Баллы
+            </th>
+            <th className={thClass("supervisor")} onClick={() => handleSort("supervisor")}>
+              Руководитель
+            </th>
+            <th>Действия</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {participations.map((p) => {
+            const isBlocked = p.IsBlocked === true;
+
+            return (
+              <tr key={p.id} className={isBlocked ? "row-blocked" : ""}>
+                <td
+                  className="clickable"
+                  onClick={() => onStudentClick(p.studentId)}
+                >
+                  {p.studentName || "-"}
+                </td>
+                <td
+                  className="clickable"
+                  onClick={() => onCompetitionClick(p.competitionId)}
+                >
+                  {p.competitionName || "-"}
+                </td>
+                <td>{p.levelName || "-"}</td>
+                <td>{p.resultName || "-"}</td>
+                <td>{p.year || "-"}</td>
+                <td>{p.points ?? "-"}</td>
+                <td>{p.supervisor || "-"}</td>
+                <td>
+                  <div className="action-btns">
+                    <button
+                      className={`btn btn-secondary${isBlocked ? " blocked" : ""}`}
+                      disabled={isBlocked}
+                      onClick={() => !isBlocked && onEdit(p)}
+                      title={isBlocked ? "Запись заблокирована" : ""}
+                    >
+                      Редактировать
+                    </button>
+
+                    <button
+                      className={`btn btn-danger${isBlocked ? " blocked" : ""}`}
+                      disabled={isBlocked}
+                      onClick={() => !isBlocked && onDelete(p.id)}
+                      title={isBlocked ? "Запись заблокирована" : ""}
+                    >
+                      Удалить
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  );
+}

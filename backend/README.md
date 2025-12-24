@@ -77,7 +77,7 @@ StudentDto:
 ```json5
 {
   id: "8dd01f45-f038-4d88-8606-5d04714b5ed5",
-  name: "aleksander",
+  name: "alexander",
   surname: "slelin",
   middleName: "vladimirovich",
   cardNumber: 1036575,
@@ -301,7 +301,7 @@ FilterChain:
     },
     {
       field: "year",
-      opearion: "between",
+      operation: "between",
       value: 2000,
       value2: 2025
     },
@@ -330,7 +330,7 @@ Filter:
 ```json5
 {
   field: "year",
-  opearion: "between",
+  operation: "between",
   value: 2000,
   value2: 2025
 }
@@ -491,6 +491,118 @@ DELETE http://localhost:8080/api/students/8dd01f45-f038-4d88-8606-5d04714b5ed5.
 * Ожидаемое тело запроса: не ожидается;
 * Результат: http-статус 204 NO_CONTENT.
 
+## Ошибки
+
+В случае возникновения ошибок, будь то клиентские или серверные возвращается стандартный ErrorResponse и 
+соответствующий http-код ошибки.
+
+ErrorResponse:
+
+* path (String): путь к end-point;
+* method (String): метод для end-point;
+* httpStatus (Integer): http-статус ошибки;
+* debugMessage (String): сообщения/советы по исправлению ошибки;
+* message (String): сообщение исключения;
+* exception (String): класс исключения;
+* causeException (String): первопричинное исключение (опционально);
+* details (Map(String, Object)): возможные детали (опционально);
+* timestamp (LocalDateTime): время, когда произошла ошибка.
+
+Примеры:
+
+Сделаем запрос несуществующей записи: http://localhost:8080/api/levels/UUU, тогда в ответ получим http-статус 404 и 
+ErrorResponse:
+
+```json5
+{
+  "path": "/api/levels/UUU",
+  "method": "GET",
+  "httpStatus": 404,
+  "debugMessage": "Entity not found.",
+  "message": "Entity \"Level\" not found by field = \"id\" with value = \"UUU\".",
+  "exception": "EntityNotFoundException",
+  "causeException": null,
+  "details": {
+    "class": "Level",
+    "field": "id",
+    "value": "UUU"
+  },
+  "timeStamp": "2025-12-23T16:25:58.083832251"
+}
+```
+
+Или к примеру попробуем создать некорректно заданного студента вот так:
+
+```json5
+{
+	"name": "someName",
+	"surname": "someSurname", 
+	"cardNumber": -34545,
+	"faculty": "Faculty of Biology and Ecology",
+	"phone": 78989,
+	"email": "@mail.ru"
+}
+```
+
+Тогда в ответ получим http-статус 400 и ErrorResponse:
+
+```json5
+{
+	"path": "/api/students",
+	"method": "POST",
+	"httpStatus": 400,
+	"debugMessage": "Validation failed.",
+	"message": "Validation failed for classes [a.slelin.work.backend.data.entity.Student] during persist time for groups [jakarta.validation.groups.Default, ]\nList of constraint violations:[\n\tConstraintViolationImpl{interpolatedMessage='must be a well-formed email address', propertyPath=email, rootBeanClass=class a.slelin.work.backend.data.entity.Student, messageTemplate='{jakarta.validation.constraints.Email.message}'}\n\tConstraintViolationImpl{interpolatedMessage='Value must be phone number', propertyPath=phone, rootBeanClass=class a.slelin.work.backend.data.entity.Student, messageTemplate='Value must be phone number'}\n\tConstraintViolationImpl{interpolatedMessage='must be greater than or equal to 0', propertyPath=cardNumber, rootBeanClass=class a.slelin.work.backend.data.entity.Student, messageTemplate='{jakarta.validation.constraints.Min.message}'}\n]",
+	"exception": "ConstraintViolationException",
+	"causeException": null,
+	"details": {
+		"errors": [
+			{
+				"field": "email",
+				"message": "must be a well-formed email address",
+				"invalidValue": "@mail.ru",
+				"constraintType": "Email",
+				"propertyPath": "email",
+				"constraintDetails": {
+					"flags": [],
+					"groups": [],
+					"regexp": ".*",
+					"message": "{jakarta.validation.constraints.Email.message}",
+					"payload": []
+				}
+			},
+			{
+				"field": "phone",
+				"message": "Value must be phone number",
+				"invalidValue": "78989",
+				"constraintType": "Phone",
+				"propertyPath": "phone",
+				"constraintDetails": {
+					"groups": [],
+					"message": "Value must be phone number",
+					"payload": [],
+					"phoneLocal": "RU"
+				}
+			},
+			{
+				"field": "cardNumber",
+				"message": "must be greater than or equal to 0",
+				"invalidValue": -34545,
+				"constraintType": "Min",
+				"propertyPath": "cardNumber",
+				"constraintDetails": {
+					"groups": [],
+					"message": "{jakarta.validation.constraints.Min.message}",
+					"payload": [],
+					"value": 0
+				}
+			}
+		]
+	},
+	"timeStamp": "2025-12-23T16:31:18.641493014"
+}
+```
+
 ## Запуск
 
 ### Стандартный запуск
@@ -547,13 +659,13 @@ docker compose down;
 
 ## Релизы
 
-На данный момент последняя версия StudentCompetitionsApi - 1.0.0.
+На данный момент последняя версия StudentCompetitionsApi - **1.0.0**.
 
 ## Статус
 
-В разработке
+Завершено.
 
 ## Разработчики
 
-* Слелин А.В.
+* Слелин Александр (**a-slelin**).
 
