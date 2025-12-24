@@ -9,7 +9,6 @@ const StudentProfile = () => {
   const [participations, setParticipations] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // --- utils ---
   const normalizeApiUrl = (url) => {
     if (!url) return null;
     try {
@@ -37,18 +36,15 @@ const StudentProfile = () => {
     return map;
   };
 
-  // --- загрузка данных ---
   useEffect(() => {
     async function loadProfile() {
       setLoading(true);
       try {
-        // 1. Студент
         const sRes = await fetch(`/api/students/${id}`);
         if (!sRes.ok) throw new Error("Студент не найден");
         const studentData = await sRes.json();
         setStudent(studentData);
 
-        // 2. Участия
         const pRes = await fetch(`/api/participations?page=0&size=1000`);
         const pData = await pRes.json();
 
@@ -63,7 +59,6 @@ const StudentProfile = () => {
           return;
         }
 
-        // 3. Подгрузка связанных сущностей
         const [competitions, levels, results] = await Promise.all([
           fetchEntities(filtered.map((p) => p.competition)),
           fetchEntities(filtered.map((p) => p.level)),
@@ -90,7 +85,6 @@ const StudentProfile = () => {
     if (id) loadProfile();
   }, [id]);
 
-  // --- UI ---
   if (loading) return <div className="loading">Загрузка профиля...</div>;
   if (!student) return <div>Студент не найден</div>;
 

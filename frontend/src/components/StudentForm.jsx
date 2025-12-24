@@ -64,6 +64,7 @@ export default function StudentForm({ student, onSave, onCancel }) {
     if (!form.surname.trim()) e.surname = "Обязательно";
     if (!form.name.trim()) e.name = "Обязательно";
     if (!form.faculty) e.faculty = "Выберите факультет";
+    if (!form.cardNumber.trim()) e.cardNumber = "Обязательно";
 
     setErrors(e);
     return Object.keys(e).length === 0;
@@ -85,12 +86,8 @@ export default function StudentForm({ student, onSave, onCancel }) {
       studyGroup: form.studyGroup.trim() || null,
       email: form.email.trim() || null,
       phone: form.phone.trim() || null,
+      cardNumber: Number(form.cardNumber),
     };
-
-
-    if (!student) {
-      payload.cardNumber = Number(form.cardNumber);
-    }
 
     onSave(payload);
   }
@@ -135,16 +132,15 @@ export default function StudentForm({ student, onSave, onCancel }) {
             />
           </div>
 
-          {!student && (
-            <div className="form-row">
-              <label>Номер студенческого билета *</label>
-              <input
-                name="cardNumber"
-                value={form.cardNumber}
-                onChange={handleChange}
-              />
-            </div>
-          )}
+          <div className="form-row">
+            <label>Номер студенческого билета *</label>
+            <input
+              name="cardNumber"
+              value={form.cardNumber}
+              onChange={handleChange}
+            />
+            {errors.cardNumber && <span className="error">{errors.cardNumber}</span>}
+          </div>
 
           <div className="form-row">
             <label>Факультет *</label>

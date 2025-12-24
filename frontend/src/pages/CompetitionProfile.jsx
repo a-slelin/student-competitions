@@ -106,7 +106,7 @@ export default function CompetitionProfile() {
   return (
     <div id="competition-profile">
       <button className="back-btn" onClick={() => navigate(-1)}>
-        ← Назад к списку
+        ← Назад
       </button>
 
       <div className="profile-header">
