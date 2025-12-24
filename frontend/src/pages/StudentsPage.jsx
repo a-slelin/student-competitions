@@ -20,6 +20,7 @@ export default function StudentsPage() {
   const [formModal, setFormModal] = useState({ show: false, student: null });
 
   const navigate = useNavigate();
+  
   async function loadStudents() {
     const isSearch = search.trim().length > 0;
     const baseUrl = isSearch ? "/api/students/search" : "/api/students";
@@ -67,31 +68,11 @@ export default function StudentsPage() {
   }, [currentPage, search, sort]);
 
   const handleSaveStudent = async (studentData) => {
-    try {
-      const isEdit = Boolean(studentData.id);
-      const url = isEdit
-        ? `/api/students/${studentData.id}`
-        : "/api/students";
-
-      const method = isEdit ? "PATCH" : "POST";
-
-      const res = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(studentData),
-      });
-
-      if (!res.ok) {
-        const text = await res.text();
-        throw new Error(text || "Ошибка сохранения студента");
-      }
-
-      setFormModal({ show: false, student: null });
-      setCurrentPage(0);
-      loadStudents();
-    } catch (e) {
-      alert(e.message);
-    }
+    // Форма сама обрабатывает сохранение и ошибки
+    // После успешного сохранения закрываем форму и обновляем список
+    setFormModal({ show: false, student: null });
+    setCurrentPage(0);
+    loadStudents();
   };
 
   const handleDeleteStudent = async () => {

@@ -28,6 +28,7 @@ export default function StudentForm({ student, onSave, onCancel }) {
   });
 
   const [errors, setErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (student) {
@@ -48,6 +49,14 @@ export default function StudentForm({ student, onSave, onCancel }) {
   function handleChange(e) {
     const { name, value } = e.target;
 
+    const textOnlyFields = ["surname", "name", "middleName", "department"];
+    
+    if (textOnlyFields.includes(name)) {
+      if (/\d/.test(value)) {
+        return;
+      }
+    }
+
     setForm((prev) => ({
       ...prev,
       [name]: value,
@@ -59,18 +68,56 @@ export default function StudentForm({ student, onSave, onCancel }) {
   }
 
   function validate() {
-    const e = {};
+  const e = {};
 
-    if (!form.surname.trim()) e.surname = "Обязательно";
-    if (!form.name.trim()) e.name = "Обязательно";
-    if (!form.faculty) e.faculty = "Выберите факультет";
-    if (!form.cardNumber.trim()) e.cardNumber = "Обязательно";
-
-    setErrors(e);
-    return Object.keys(e).length === 0;
+  if (!form.surname.trim()) {
+    e.surname = "Обязательно";
+  } else if (form.surname.trim().length < 2) {
+    e.surname = "Минимум 2 символа";
+  } else if (form.surname.trim().length > 50) {
+    e.surname = "Максимум 50 символов";
+  } else if (/\d/.test(form.surname)) {
+    e.surname = "Фамилия не должна содержать цифры";
   }
 
-  function handleSubmit(e) {
+  if (!form.name.trim()) {
+    e.name = "Обязательно";
+  } else if (form.name.trim().length < 2) {
+    e.name = "Минимум 2 символа";
+  } else if (form.name.trim().length > 50) {
+    e.name = "Максимум 50 символов";
+  } else if (/\d/.test(form.name)) {
+    e.name = "Имя не должно содержать цифры";
+  }
+
+  if (form.middleName) {
+    if (form.middleName.trim().length < 2) {
+      e.middleName = "Минимум 2 символа";
+    } else if (form.middleName.trim().length > 50) {
+      e.middleName = "Максимум 50 символов";
+    } else if (/\d/.test(form.middleName)) {
+      e.middleName = "Отчество не должно содержать цифры";
+    }
+  }
+
+  if (form.department && /\d/.test(form.department)) {
+    e.department = "Кафедра не должна содержать цифры";
+  }
+
+  if (!form.faculty) {
+    e.faculty = "Выберите факультет";
+  }
+
+  if (!student && !form.cardNumber.toString().trim()) {
+    e.cardNumber = "Обязательно";
+  }
+
+  setErrors(e);
+  return Object.keys(e).length === 0;
+}
+
+
+  async function handleSubmit(e) {
     e.preventDefault();
     if (!validate()) return;
 
@@ -86,10 +133,68 @@ export default function StudentForm({ student, onSave, onCancel }) {
       studyGroup: form.studyGroup.trim() || null,
       email: form.email.trim() || null,
       phone: form.phone.trim() || null,
-      cardNumber: Number(form.cardNumber),
     };
 
-    onSave(payload);
+    if (!student) {
+      payload.cardNumber = Number(form.cardNumber);
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const isEdit = Boolean(student?.id);
+      const url = isEdit ? `/api/students/${student.id}` : "/api/students";
+      const method = isEdit ? "PATCH" : "POST";
+
+      const res = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => null);
+        
+        if (errorData) {
+          if (errorData.exception === "NotUniqueFieldException" && errorData.details) {
+            const field = errorData.details.field;
+            const fieldNameMap = {
+              cardNumber: "cardNumber",
+              surname: "surname",
+              name: "name",
+              email: "email",
+              phone: "phone"
+            };
+
+            const mappedField = fieldNameMap[field] || field;
+            
+            let errorMessage = "Это значение уже используется";
+            if (field === "cardNumber") {
+              errorMessage = `Студент с номером билета ${errorData.details.value} уже существует`;
+            } else if (field === "email") {
+              errorMessage = `Email ${errorData.details.value} уже используется`;
+            } else if (field === "phone") {
+              errorMessage = `Телефон ${errorData.details.value} уже используется`;
+            }
+
+            setErrors({ [mappedField]: errorMessage });
+          } else {
+            setErrors({ general: errorData.message || "Ошибка при сохранении данных" });
+          }
+        } else {
+          setErrors({ general: "Ошибка при сохранении данных" });
+        }
+        
+        setIsSubmitting(false);
+        return;
+      }
+
+      onSave(payload);
+    } catch (err) {
+      console.error("Ошибка при сохранении:", err);
+      setErrors({ general: "Произошла ошибка при сохранении данных" });
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -101,6 +206,20 @@ export default function StudentForm({ student, onSave, onCancel }) {
         </div>
 
         <form className="modal-body" onSubmit={handleSubmit}>
+          {errors.general && (
+            <div style={{ 
+              padding: "10px", 
+              marginBottom: "15px", 
+              backgroundColor: "#fee", 
+              border: "1px solid #fcc",
+              borderRadius: "4px",
+              color: "#c33",
+              fontSize: "0.9rem"
+            }}>
+              {errors.general}
+            </div>
+          )}
+
           <div className="form-row two-cols">
             <div>
               <label>Фамилия *</label>
@@ -108,8 +227,19 @@ export default function StudentForm({ student, onSave, onCancel }) {
                 name="surname"
                 value={form.surname}
                 onChange={handleChange}
+                style={errors.surname ? { borderColor: "#dc3545" } : {}}
+                
               />
-              {errors.surname && <span className="error">{errors.surname}</span>}
+              {errors.surname && (
+                <span style={{ 
+                  color: "#dc3545", 
+                  fontSize: "0.85rem", 
+                  marginTop: "4px",
+                  display: "block"
+                }}>
+                  {errors.surname}
+                </span>
+              )}
             </div>
 
             <div>
@@ -118,8 +248,18 @@ export default function StudentForm({ student, onSave, onCancel }) {
                 name="name"
                 value={form.name}
                 onChange={handleChange}
+                style={errors.name ? { borderColor: "#dc3545" } : {}}               
               />
-              {errors.name && <span className="error">{errors.name}</span>}
+              {errors.name && (
+                <span style={{ 
+                  color: "#dc3545", 
+                  fontSize: "0.85rem", 
+                  marginTop: "4px",
+                  display: "block"
+                }}>
+                  {errors.name}
+                </span>
+              )}
             </div>
           </div>
 
@@ -129,18 +269,43 @@ export default function StudentForm({ student, onSave, onCancel }) {
               name="middleName"
               value={form.middleName}
               onChange={handleChange}
+              style={errors.middleName ? { borderColor: "#dc3545" } : {}}
+             
             />
+            {errors.middleName && (
+              <span style={{ 
+                color: "#dc3545", 
+                fontSize: "0.85rem", 
+                marginTop: "4px",
+                display: "block"
+              }}>
+                {errors.middleName}
+              </span>
+            )}
           </div>
 
-          <div className="form-row">
-            <label>Номер студенческого билета *</label>
-            <input
-              name="cardNumber"
-              value={form.cardNumber}
-              onChange={handleChange}
-            />
-            {errors.cardNumber && <span className="error">{errors.cardNumber}</span>}
-          </div>
+          {!student && (
+            <div className="form-row">
+              <label>Номер студенческого билета *</label>
+              <input
+                name="cardNumber"
+                type="number"
+                value={form.cardNumber}
+                onChange={handleChange}
+                style={errors.cardNumber ? { borderColor: "#dc3545" } : {}}
+              />
+              {errors.cardNumber && (
+                <span style={{ 
+                  color: "#dc3545", 
+                  fontSize: "0.85rem", 
+                  marginTop: "4px",
+                  display: "block"
+                }}>
+                  {errors.cardNumber}
+                </span>
+              )}
+            </div>
+          )}
 
           <div className="form-row">
             <label>Факультет *</label>
@@ -148,6 +313,7 @@ export default function StudentForm({ student, onSave, onCancel }) {
               name="faculty"
               value={form.faculty}
               onChange={handleChange}
+              style={errors.faculty ? { borderColor: "#dc3545" } : {}}
             >
               <option value="">Выберите факультет</option>
               {FACULTIES.map((f) => (
@@ -156,7 +322,16 @@ export default function StudentForm({ student, onSave, onCancel }) {
                 </option>
               ))}
             </select>
-            {errors.faculty && <span className="error">{errors.faculty}</span>}
+            {errors.faculty && (
+              <span style={{ 
+                color: "#dc3545", 
+                fontSize: "0.85rem", 
+                marginTop: "4px",
+                display: "block"
+              }}>
+                {errors.faculty}
+              </span>
+            )}
           </div>
 
           <div className="form-row two-cols">
@@ -166,7 +341,19 @@ export default function StudentForm({ student, onSave, onCancel }) {
                 name="department"
                 value={form.department}
                 onChange={handleChange}
+                style={errors.department ? { borderColor: "#dc3545" } : {}}
+              
               />
+              {errors.department && (
+                <span style={{ 
+                  color: "#dc3545", 
+                  fontSize: "0.85rem", 
+                  marginTop: "4px",
+                  display: "block"
+                }}>
+                  {errors.department}
+                </span>
+              )}
             </div>
 
             <div>
@@ -184,9 +371,21 @@ export default function StudentForm({ student, onSave, onCancel }) {
               <label>Email</label>
               <input
                 name="email"
+                type="email"
                 value={form.email}
                 onChange={handleChange}
+                style={errors.email ? { borderColor: "#dc3545" } : {}}
               />
+              {errors.email && (
+                <span style={{ 
+                  color: "#dc3545", 
+                  fontSize: "0.85rem", 
+                  marginTop: "4px",
+                  display: "block"
+                }}>
+                  {errors.email}
+                </span>
+              )}
             </div>
 
             <div>
@@ -195,15 +394,35 @@ export default function StudentForm({ student, onSave, onCancel }) {
                 name="phone"
                 value={form.phone}
                 onChange={handleChange}
+                style={errors.phone ? { borderColor: "#dc3545" } : {}}
               />
+              {errors.phone && (
+                <span style={{ 
+                  color: "#dc3545", 
+                  fontSize: "0.85rem", 
+                  marginTop: "4px",
+                  display: "block"
+                }}>
+                  {errors.phone}
+                </span>
+              )}
             </div>
           </div>
 
           <div className="modal-footer">
-            <button type="submit" className="btn btn-primary">
-              Сохранить
+            <button 
+              type="submit" 
+              className="btn btn-primary"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? "Сохранение..." : "Сохранить"}
             </button>
-            <button type="button" className="btn btn-secondary" onClick={onCancel}>
+            <button 
+              type="button" 
+              className="btn btn-secondary" 
+              onClick={onCancel}
+              disabled={isSubmitting}
+            >
               Отмена
             </button>
           </div>
