@@ -15,7 +15,6 @@ export default function ResultsPage() {
   const [confirmModal, setConfirmModal] = useState({ show: false, callback: null });
   const [formModal, setFormModal] = useState({ show: false, result: null });
 
-  // Сбрасываем страницу при изменении поиска или сортировки
   useEffect(() => setCurrentPage(0), [search, sort]);
 
   const loadResults = async (page = currentPage) => {
@@ -26,7 +25,6 @@ export default function ResultsPage() {
       const params = new URLSearchParams({ page, size: pageSize });
 
       if (sort.column) {
-        // Для поля "order" сервер ожидает "sortOrder"
         const columnName = sort.column === "order" ? "sortOrder" : sort.column;
         params.append("sort", `${columnName},${sort.direction.toUpperCase()}`);
       }
@@ -139,7 +137,6 @@ export default function ResultsPage() {
         onDelete={handleDelete}
       />
 
-      <div className="students-info">{results.length} записей</div>
 
       <Pagination
         currentPage={currentPage}

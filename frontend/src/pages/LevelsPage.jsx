@@ -15,7 +15,6 @@ export default function LevelsPage() {
   const [confirmModal, setConfirmModal] = useState({ show: false, callback: null });
   const [formModal, setFormModal] = useState({ show: false, level: null });
 
-  // сброс страницы при изменении поиска или сортировки
   useEffect(() => setCurrentPage(0), [search, sort]);
 
   const loadLevels = async () => {
@@ -25,7 +24,6 @@ export default function LevelsPage() {
 
       const params = new URLSearchParams({ page: currentPage, size: pageSize });
 
-      // корректное имя колонки для сервера
       if (sort.column) {
         const columnName = sort.column === "order" ? "sortOrder" : sort.column;
         params.append("sort", `${columnName},${sort.direction.toUpperCase()}`);
@@ -130,8 +128,6 @@ export default function LevelsPage() {
         onEdit={(l) => setFormModal({ show: true, level: l })}
         onDelete={handleDelete}
       />
-
-      <div className="students-info">{levels.length} записей</div>
 
       <Pagination
         currentPage={currentPage}
